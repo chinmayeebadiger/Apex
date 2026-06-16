@@ -1,0 +1,36 @@
+import boto3
+
+# 1. Connected directly to your project infrastructure in Mumbai
+client = boto3.client(service_name="bedrock-runtime", region_name="ap-south-1")
+
+# 2. Use the dedicated APAC inference profile ID for Llama 3.3
+model_id = "apac.meta.llama3-3-70b-instruct-v1:0"
+
+conversation = [
+    {
+        "role": "user",
+        "content": [{"text": "Hello Llama! Confirm you are processing this request routed via Mumbai."}]
+    }
+]
+
+print("Sending request from Mumbai using APAC Cross-Region Inference...")
+
+try:
+    # Invoke the model using the standard converse API
+    response = client.converse(
+        modelId=model_id,
+        messages=conversation,
+        inferenceConfig={
+            "maxTokens": 500,
+            "temperature": 0.7
+        }
+    )
+    
+    # Extract and display the model's response
+    reply_text = response["output"]["message"]["content"][0]["text"]
+    print("\n--- Response From Llama ---")
+    print(reply_text)
+
+except Exception as e:
+    print(f"\nAn error occurred: {e}")
+    
