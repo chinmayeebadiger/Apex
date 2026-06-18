@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as path from 'path';
 
@@ -9,25 +10,26 @@ export class InfraStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    const anthropicApiKeySecret = new secretsmanager.Secret(this, 'AnthropicApiKeySecret', {
+      secretName: 'anthropic-api-key',
+    });
+
     const generateLambda = new NodejsFunction(this, 'GenerateLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'handler',
       entry: path.join(__dirname, '../lambda/generate/index.ts'),
       timeout: cdk.Duration.seconds(30),
+      environment: {
+        ANTHROPIC_API_KEY_SECRET_ARN: anthropicApiKeySecret.secretArn,
+      },
     });
 
-    // Grant this Lambda permission to call Bedrock
     generateLambda.addToRolePolicy(new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       actions: [
-        'bedrock:GetInferenceProfile',
-        'bedrock:InvokeModel',
-        'bedrock:InvokeModelWithResponseStream',
+        'secretsmanager:GetSecretValue',
       ],
-      resources: [
-        'arn:aws:bedrock:ap-south-1:437040615496:inference-profile/global.anthropic.claude-opus-4-5-20251101-v1:0',
-        'arn:aws:bedrock:*::foundation-model/anthropic.claude-opus-4-5-20251101-v1:0',
-      ],
+      resources: [anthropicApiKeySecret.secretArn],
     }));
 
     generateLambda.addToRolePolicy(new iam.PolicyStatement({

@@ -11,6 +11,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@aws-sdk/client-bedrock-runtime": "^3.1068.0"
+    "@anthropic-ai/sdk": "^0.104.2",
+    "@aws-sdk/client-secrets-manager": "^3.1069.0"
   }
 }
