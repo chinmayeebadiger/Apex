@@ -18,7 +18,8 @@ export class InfraStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'handler',
       entry: path.join(__dirname, '../lambda/generate/index.ts'),
-      timeout: cdk.Duration.seconds(30),
+      timeout: cdk.Duration.seconds(60),
+      memorySize: 512,
       environment: {
         ANTHROPIC_API_KEY_SECRET_ARN: anthropicApiKeySecret.secretArn,
       },
@@ -41,6 +42,17 @@ export class InfraStack extends cdk.Stack {
       resources: ['*'],
     }));
 
+    // Lambda Function URL — no 29s timeout limit like API Gateway
+    const fnUrl = generateLambda.addFunctionUrl({
+      authType: lambda.FunctionUrlAuthType.NONE,
+      cors: {
+        allowedOrigins: ['*'],
+        allowedMethods: [lambda.HttpMethod.POST],
+        allowedHeaders: ['Content-Type'],
+      },
+    });
+
+    // Keep API Gateway for backward compatibility (still has 29s hard limit)
     const api = new apigateway.RestApi(this, 'DevopsCopilotApi', {
       restApiName: 'DevOps Copilot API',
       defaultCorsPreflightOptions: {
@@ -54,7 +66,12 @@ export class InfraStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, 'ApiUrl', {
       value: api.url,
-      description: 'API Gateway URL',
+      description: 'API Gateway URL (29s timeout limit)',
+    });
+
+    new cdk.CfnOutput(this, 'FunctionUrl', {
+      value: fnUrl.url,
+      description: 'Lambda Function URL (60s timeout, use this instead)',
     });
   }
 }
