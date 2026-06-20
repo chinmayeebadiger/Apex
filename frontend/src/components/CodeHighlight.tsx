@@ -33,7 +33,7 @@ export function CodeHighlight({ code }: CodeHighlightProps) {
 
     // We can tokenize using a sequential replacement strategy
     // First, escape HTML entities
-    let escaped = code
+    const escaped = code
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');

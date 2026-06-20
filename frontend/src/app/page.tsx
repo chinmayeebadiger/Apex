@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Terminal, 
   Copy, 
   Check, 
   Download, 
@@ -16,7 +15,6 @@ import {
   Server, 
   Loader2, 
   ArrowRight,
-  ExternalLink,
   Cpu
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -70,6 +68,7 @@ export default function App() {
       const stored = localStorage.getItem('apex_generation_history');
       if (stored) {
         const parsed = JSON.parse(stored);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setHistory(parsed);
         if (parsed.length > 0) {
           setActiveItem(parsed[0]);
@@ -210,9 +209,9 @@ export default function App() {
         origin: { y: 0.8 }
       });
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || 'An unexpected error occurred. Please try again.');
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.');
       setTempGeneration(null);
     } finally {
       setIsGenerating(false);
@@ -376,9 +375,7 @@ export default function App() {
                           <ArrowRight className="h-3.5 w-3.5 text-slate-300 group-hover:text-teal-600 transition-colors" />
                         </div>
                         <h4 className="font-semibold text-xs text-slate-700">{ex.title}</h4>
-                        <p className="text-[11px] text-slate-500 leading-normal">
-                          "{ex.text}"
-                        </p>
+                        <p className="text-[11px] text-slate-500 leading-normal">{ex.text}</p>
                       </div>
                     </div>
                   ))}
