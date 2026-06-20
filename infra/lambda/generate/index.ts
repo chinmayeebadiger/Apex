@@ -67,11 +67,8 @@ const createMessageWithRetry = async (
   throw new Error('Anthropic request failed after retries');
 };
 
-const CORS_HEADERS = {
+const RESPONSE_HEADERS = {
   'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
 };
 
 export const handler = async (event: any) => {
@@ -81,7 +78,7 @@ export const handler = async (event: any) => {
   if (!userMessage) {
     return {
       statusCode: 400,
-      headers: CORS_HEADERS,
+      headers: RESPONSE_HEADERS,
       body: JSON.stringify({ error: 'message is required' }),
     };
   }
@@ -107,7 +104,7 @@ export const handler = async (event: any) => {
 
   return {
     statusCode: 200,
-    headers: CORS_HEADERS,
+    headers: RESPONSE_HEADERS,
     body: JSON.stringify(result),
   };
 };
