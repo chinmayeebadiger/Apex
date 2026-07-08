@@ -1,0 +1,24 @@
+{
+  "name": "@apex/changeset",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest --runInBand"
+  },
+  "dependencies": {
+    "@aws-sdk/client-pricing": "^3.1069.0",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.0",
+    "jest": "^30.2.0",
+    "react": "19.2.4",
+    "ts-jest": "^29.4.6",
+    "typescript": "~5.9.3"
+  }
+}
