@@ -6,8 +6,12 @@ import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as path from 'path';
 
+export interface InfraStackProps extends cdk.StackProps {
+  sandboxFn: lambda.IFunction;
+}
+
 export class InfraStack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
+  constructor(scope: cdk.App, id: string, props: InfraStackProps) {
     super(scope, id, props);
 
     const anthropicApiKeySecret = new secretsmanager.Secret(this, 'AnthropicApiKeySecret', {
@@ -20,10 +24,16 @@ export class InfraStack extends cdk.Stack {
       entry: path.join(__dirname, '../lambda/generate/index.ts'),
       timeout: cdk.Duration.seconds(60),
       memorySize: 512,
+      bundling: {
+        externalModules: ['@aws-sdk/client-lambda'],
+      },
       environment: {
         ANTHROPIC_API_KEY_SECRET_ARN: anthropicApiKeySecret.secretArn,
+        SANDBOX_FUNCTION_NAME: props.sandboxFn.functionName,
       },
     });
+
+    props.sandboxFn.grantInvoke(generateLambda);
 
     generateLambda.addToRolePolicy(new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,

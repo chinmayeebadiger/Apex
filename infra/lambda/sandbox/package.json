@@ -1,0 +1,10 @@
+{
+  "name": "sandbox",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "5.4.5"
+  }
+}

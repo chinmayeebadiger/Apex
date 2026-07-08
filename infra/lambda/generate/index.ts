@@ -1,7 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 
 const secretsManagerClient = new SecretsManagerClient({});
+const lambdaClient = new LambdaClient({});
 let cachedAnthropicApiKey: string | undefined;
 
 const SYSTEM_PROMPT = `You are an expert AWS CDK TypeScript engineer.
@@ -37,6 +39,29 @@ const getAnthropicApiKey = async () => {
 
   cachedAnthropicApiKey = secretValue;
   return cachedAnthropicApiKey;
+};
+
+const getSandboxFunctionName = () => {
+  const functionName = process.env.SANDBOX_FUNCTION_NAME;
+  if (!functionName) {
+    throw new Error('SANDBOX_FUNCTION_NAME is not configured');
+  }
+
+  return functionName;
+};
+
+const invokeSandbox = async (code: string) => {
+  const invokeResult = await lambdaClient.send(new InvokeCommand({
+    FunctionName: getSandboxFunctionName(),
+    InvocationType: 'RequestResponse',
+    Payload: JSON.stringify({ code }),
+  }));
+
+  if (!invokeResult.Payload) {
+    throw new Error('Sandbox Lambda returned an empty payload');
+  }
+
+  return JSON.parse(new TextDecoder().decode(invokeResult.Payload)) as Record<string, unknown>;
 };
 
 const delay = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -100,12 +125,13 @@ export const handler = async (event: any) => {
     .join('');
 
   // Parse the JSON Claude returned
-  const result = JSON.parse(rawText);
+  const result = JSON.parse(rawText) as { code: string; explanation: string };
+  const sandboxResponse = await invokeSandbox(result.code);
 
   return {
     statusCode: 200,
     headers: RESPONSE_HEADERS,
-    body: JSON.stringify(result),
+    body: JSON.stringify({ ...result, ...sandboxResponse }),
   };
 };
 
