@@ -18,17 +18,23 @@ import {
   Cpu
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { ApprovalBar } from '../components/ApprovalBar';
 import { CodeHighlight } from '../components/CodeHighlight';
+import { CostEstimatePanel } from '../components/CostEstimatePanel';
+import { DiffPanel } from '../components/DiffPanel';
+import { SecurityFlagsPanel } from '../components/SecurityFlagsPanel';
 import { cn } from '../lib/utils';
+import type { GenerationItem, OrchestrationResponse } from '../lib/types';
 
-// Define the generation item interface
-interface GenerationItem {
-  id: string;
-  prompt: string;
-  code: string;
-  explanation: string;
-  timestamp: number;
-}
+const getOrchestrationUrl = () =>
+  process.env.NEXT_PUBLIC_ORCHESTRATION_URL
+  ?? process.env.NEXT_PUBLIC_API_GATEWAY_URL?.replace(/\/$/, '')
+  ?? '';
+
+const getApproveUrl = () => {
+  const apiBase = process.env.NEXT_PUBLIC_API_GATEWAY_URL?.replace(/\/$/, '');
+  return apiBase ? `${apiBase}/approve` : '';
+};
 
 const EXAMPLE_PROMPTS = [
   {
@@ -53,13 +59,10 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   
   // Temporary generation state before saving to history
-  const [tempGeneration, setTempGeneration] = useState<{
-    prompt: string;
-    code: string;
-    explanation: string;
-  } | null>(null);
+  const [tempGeneration, setTempGeneration] = useState<GenerationItem | null>(null);
 
   const [copied, setCopied] = useState(false);
+  const [isApprovalSubmitting, setIsApprovalSubmitting] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Load history from localStorage on mount
@@ -149,7 +152,56 @@ export default function App() {
     setTempGeneration(null);
   };
 
-  // Trigger CDK code generation
+  const submitApproval = async (action: 'approve' | 'cancel') => {
+    const item = activeItem ?? tempGeneration;
+    if (!item?.conversationId || !item?.generationId) {
+      return;
+    }
+
+    const approveUrl = getApproveUrl();
+    if (!approveUrl) {
+      setError('NEXT_PUBLIC_API_GATEWAY_URL is not configured for approval requests.');
+      return;
+    }
+
+    setIsApprovalSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(approveUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId: item.conversationId,
+          generationId: item.generationId,
+          action,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error ?? `Approval request failed with status ${response.status}`);
+      }
+
+      const updatedItem: GenerationItem = {
+        ...item,
+        status: data.status,
+      };
+
+      const updatedHistory = history.map((entry) => (
+        entry.id === item.id ? updatedItem : entry
+      ));
+      saveHistory(updatedHistory);
+      setActiveItem(updatedItem);
+      setTempGeneration(null);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Approval request failed.');
+    } finally {
+      setIsApprovalSubmitting(false);
+    }
+  };
+
+  // Trigger CDK code generation via orchestration pipeline
   const handleGenerate = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!promptInput.trim() || isGenerating) return;
@@ -161,12 +213,23 @@ export default function App() {
     
     // Set temp state to show the user prompt in chat area immediately
     setTempGeneration({
+      id: 'pending',
+      conversationId: '',
+      generationId: '',
       prompt: requestText,
       code: '',
-      explanation: 'Parsing prompt and generating AWS CDK stack... Please wait.'
+      explanation: 'Generating CDK code, running sandbox synth, and building diff preview...',
+      status: 'generating',
+      timestamp: Date.now(),
     });
 
-    const endpoint = process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'https://hhb2s55sj2je6qlmle5bwgxtni0drlfj.lambda-url.ap-south-1.on.aws/';
+    const endpoint = getOrchestrationUrl();
+    if (!endpoint) {
+      setError('NEXT_PUBLIC_ORCHESTRATION_URL is not configured.');
+      setIsGenerating(false);
+      setTempGeneration(null);
+      return;
+    }
 
     try {
       const response = await fetch(endpoint, {
@@ -177,22 +240,28 @@ export default function App() {
         body: JSON.stringify({ message: requestText }),
       });
 
+      const data = await response.json() as OrchestrationResponse;
+
       if (!response.ok) {
-        throw new Error(`Server returned code ${response.status}`);
+        throw new Error(data.error ?? `Server returned code ${response.status}`);
       }
 
-      const data = await response.json();
-      
       if (!data.code) {
-        throw new Error("Invalid response format. Expected 'code' property.");
+        throw new Error("Invalid response format. Expected generated CDK code.");
       }
 
       const newItem: GenerationItem = {
-        id: Math.random().toString(36).substring(2, 9),
+        id: data.generationId,
+        conversationId: data.conversationId,
+        generationId: data.generationId,
         prompt: requestText,
         code: data.code,
-        explanation: data.explanation || "CDK Stack generated successfully.",
-        timestamp: Date.now()
+        explanation: data.explanation ?? 'CDK stack generated and validated in sandbox.',
+        status: data.status,
+        diff: data.diff,
+        costEstimate: data.costEstimate,
+        securityFlags: data.securityFlags,
+        timestamp: Date.now(),
       };
 
       // Add to local history and set as active
@@ -222,6 +291,10 @@ export default function App() {
   const currentPrompt = activeItem?.prompt || tempGeneration?.prompt || '';
   const currentCode = activeItem?.code || tempGeneration?.code || '';
   const currentExplanation = activeItem?.explanation || tempGeneration?.explanation || '';
+  const currentStatus = activeItem?.status || tempGeneration?.status;
+  const currentDiff = activeItem?.diff || tempGeneration?.diff;
+  const currentCostEstimate = activeItem?.costEstimate || tempGeneration?.costEstimate;
+  const currentSecurityFlags = activeItem?.securityFlags || tempGeneration?.securityFlags;
   const hasContent = !!(activeItem || tempGeneration);
 
   return (
@@ -422,10 +495,24 @@ export default function App() {
                             <span>Apex Copilot Solution</span>
                           </div>
                           <p className="text-slate-600">{currentExplanation}</p>
-                          <div className="mt-2.5 pt-2 border-t border-teal-100/40 text-[10px] text-slate-400 flex items-center gap-1.5">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                            <span>Valid AWS CDK TypeScript generated.</span>
-                          </div>
+                          {currentStatus === 'awaiting_approval' && (
+                            <div className="mt-2.5 pt-2 border-t border-teal-100/40 text-[10px] text-amber-600 flex items-center gap-1.5">
+                              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                              <span>Sandbox synth passed — awaiting your approval.</span>
+                            </div>
+                          )}
+                          {currentStatus === 'approved' && (
+                            <div className="mt-2.5 pt-2 border-t border-teal-100/40 text-[10px] text-emerald-600 flex items-center gap-1.5">
+                              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                              <span>Approved and saved to DynamoDB.</span>
+                            </div>
+                          )}
+                          {!currentStatus || currentStatus === 'generating' ? (
+                            <div className="mt-2.5 pt-2 border-t border-teal-100/40 text-[10px] text-slate-400 flex items-center gap-1.5">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                              <span>Running full orchestration pipeline...</span>
+                            </div>
+                          ) : null}
                         </div>
                       )}
                     </div>
@@ -436,8 +523,27 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Right Column: Code centerpiece Editor view */}
-              <div className="flex-1 bg-slate-900 flex flex-col h-full overflow-hidden">
+              {/* Right Column: Code + preview panels */}
+              <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-100">
+                {(currentDiff || currentCostEstimate || currentSecurityFlags) && !isGenerating && (
+                  <div className="border-b border-slate-200 bg-slate-50 p-4 space-y-3 overflow-y-auto max-h-[42%] shrink-0">
+                    {currentStatus && (
+                      <ApprovalBar
+                        status={currentStatus}
+                        onApprove={() => submitApproval('approve')}
+                        onCancel={() => submitApproval('cancel')}
+                        isSubmitting={isApprovalSubmitting}
+                      />
+                    )}
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
+                      <DiffPanel diff={currentDiff} />
+                      <CostEstimatePanel costEstimate={currentCostEstimate} />
+                      <SecurityFlagsPanel flags={currentSecurityFlags} />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex-1 bg-slate-900 flex flex-col min-h-0 overflow-hidden">
                 
                 {/* Editor Header Tab */}
                 <div className="h-11 border-b border-slate-800/80 bg-slate-950 flex items-center justify-between px-4 select-none">
@@ -502,6 +608,7 @@ export default function App() {
                       Waiting for generation to finish...
                     </div>
                   )}
+                </div>
                 </div>
               </div>
 

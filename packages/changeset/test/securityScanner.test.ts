@@ -71,4 +71,30 @@ describe('scanTemplateSecurity', () => {
 
     expect(scan.flags).toEqual([]);
   });
+
+  test('flags security groups open to the internet', () => {
+    const scan = scanTemplateSecurity({
+      Resources: {
+        OpenSecurityGroup: {
+          Type: 'AWS::EC2::SecurityGroup',
+          Properties: {
+            SecurityGroupIngress: [{
+              IpProtocol: 'tcp',
+              FromPort: 22,
+              ToPort: 22,
+              CidrIp: '0.0.0.0/0',
+            }],
+          },
+        },
+      },
+    });
+
+    expect(scan.flags).toEqual([
+      expect.objectContaining({
+        logicalId: 'OpenSecurityGroup',
+        severity: 'high',
+        message: expect.stringContaining('0.0.0.0/0'),
+      }),
+    ]);
+  });
 });

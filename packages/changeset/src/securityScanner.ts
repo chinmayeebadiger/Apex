@@ -114,6 +114,24 @@ export const scanTemplateSecurity = (templateInput: unknown): SecurityScan => {
         message: 'RDS DB cluster does not explicitly enable storage encryption.',
       });
     }
+
+    if (resource.Type === 'AWS::EC2::SecurityGroup') {
+      for (const rule of asArray(properties.SecurityGroupIngress)) {
+        if (!rule || typeof rule !== 'object') {
+          continue;
+        }
+
+        const cidr = (rule as Record<string, unknown>).CidrIp;
+        if (cidr === '0.0.0.0/0') {
+          flags.push({
+            logicalId,
+            severity: 'high',
+            message: 'Security group allows inbound traffic from 0.0.0.0/0 (open to the internet).',
+          });
+          break;
+        }
+      }
+    }
   }
 
   return SecurityScanSchema.parse({ flags });
