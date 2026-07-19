@@ -11,6 +11,7 @@ describe('orchestration handler', () => {
       ...previousEnv,
       GENERATIONS_TABLE_NAME: 'Generations',
       SANDBOX_FUNCTION_NAME: 'SandboxLambda',
+      WEBSOCKET_MANAGEMENT_ENDPOINT: 'https://example.execute-api.ap-south-1.amazonaws.com/prod',
     };
   });
 
@@ -69,6 +70,7 @@ describe('orchestration handler', () => {
       lambdaClient: lambdaClient as never,
       anthropicFactory: () => ({} as never),
       getApiKey: async () => 'test-api-key',
+      emitStep: async () => {},
       generate: async () => ({
         code: 'import * as cdk from "aws-cdk-lib";',
         explanation: 'Creates an encrypted S3 bucket.',

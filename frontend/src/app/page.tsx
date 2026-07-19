@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { 
   Copy, 
   Check, 
@@ -22,9 +22,13 @@ import { ApprovalBar } from '../components/ApprovalBar';
 import { CodeHighlight } from '../components/CodeHighlight';
 import { CostEstimatePanel } from '../components/CostEstimatePanel';
 import { DiffPanel } from '../components/DiffPanel';
+import { PipelineSteps } from '../components/PipelineSteps';
 import { SecurityFlagsPanel } from '../components/SecurityFlagsPanel';
+import { usePipelineWebSocket } from '../hooks/usePipelineWebSocket';
+import { getConversationId, resetConversationId } from '../lib/conversation';
+import { buildDiffFromChangeset } from '../lib/diff';
 import { cn } from '../lib/utils';
-import type { GenerationItem, OrchestrationResponse } from '../lib/types';
+import type { CostEstimate, GenerationItem, GenerationStatus, OrchestrationResponse, SecurityFlag } from '../lib/types';
 
 const getOrchestrationUrl = () =>
   process.env.NEXT_PUBLIC_ORCHESTRATION_URL
@@ -34,6 +38,31 @@ const getOrchestrationUrl = () =>
 const getApproveUrl = () => {
   const apiBase = process.env.NEXT_PUBLIC_API_GATEWAY_URL?.replace(/\/$/, '');
   return apiBase ? `${apiBase}/approve` : '';
+};
+
+const getHistoryUrl = (conversationId: string) => {
+  const apiBase = process.env.NEXT_PUBLIC_API_GATEWAY_URL?.replace(/\/$/, '');
+  return apiBase ? `${apiBase}/history?conversationId=${encodeURIComponent(conversationId)}` : '';
+};
+
+const mapHistoryRecord = (record: Record<string, unknown>): GenerationItem | null => {
+  if (!record.generationId || !record.conversationId) {
+    return null;
+  }
+
+  return {
+    id: String(record.generationId),
+    conversationId: String(record.conversationId),
+    generationId: String(record.generationId),
+    prompt: String(record.originalRequest ?? ''),
+    code: String(record.generatedCdkCode ?? ''),
+    explanation: String(record.generatedExplanation ?? 'No explanation recorded.'),
+    status: (record.status as GenerationStatus) ?? 'failed',
+    diff: buildDiffFromChangeset(record.changeset as Parameters<typeof buildDiffFromChangeset>[0]),
+    costEstimate: record.costEstimate as CostEstimate | undefined,
+    securityFlags: record.securityFlags as SecurityFlag[] | undefined,
+    timestamp: record.createdAt ? new Date(String(record.createdAt)).getTime() : Date.now(),
+  };
 };
 
 const EXAMPLE_PROMPTS = [
@@ -53,10 +82,14 @@ const EXAMPLE_PROMPTS = [
 
 export default function App() {
   const [history, setHistory] = useState<GenerationItem[]>([]);
+  const [historySearch, setHistorySearch] = useState('');
+  const [conversationId, setConversationId] = useState('');
+  const [followUpFromGenerationId, setFollowUpFromGenerationId] = useState<string | null>(null);
   const [promptInput, setPromptInput] = useState('');
   const [activeItem, setActiveItem] = useState<GenerationItem | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { connectionId, isConnected, steps, resetSteps } = usePipelineWebSocket();
   
   // Temporary generation state before saving to history
   const [tempGeneration, setTempGeneration] = useState<GenerationItem | null>(null);
@@ -65,24 +98,39 @@ export default function App() {
   const [isApprovalSubmitting, setIsApprovalSubmitting] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Load history from localStorage on mount
-  useEffect(() => {
+  const loadHistory = useCallback(async (targetConversationId: string) => {
+    const historyUrl = getHistoryUrl(targetConversationId);
+    if (!historyUrl) {
+      return;
+    }
+
     try {
-      const stored = localStorage.getItem('apex_generation_history');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setHistory(parsed);
-        if (parsed.length > 0) {
-          setActiveItem(parsed[0]);
-        }
+      const response = await fetch(historyUrl);
+      if (!response.ok) {
+        return;
       }
-    } catch (e) {
-      console.error('Failed to load history from localStorage', e);
+
+      const data = await response.json() as { items?: Record<string, unknown>[] };
+      const mapped = (data.items ?? [])
+        .map(mapHistoryRecord)
+        .filter((item): item is GenerationItem => item !== null);
+
+      if (mapped.length > 0) {
+        setHistory(mapped);
+        setActiveItem((current) => current ?? mapped[0]);
+      }
+    } catch (loadError) {
+      console.error('Failed to load history', loadError);
     }
   }, []);
 
-  // Save history to localStorage
+  useEffect(() => {
+    const id = getConversationId();
+    setConversationId(id);
+    void loadHistory(id);
+  }, [loadHistory]);
+
+  // Keep a local cache for quick reloads; DynamoDB remains source of truth
   const saveHistory = (newHistory: GenerationItem[]) => {
     setHistory(newHistory);
     try {
@@ -91,6 +139,10 @@ export default function App() {
       console.error('Failed to save history to localStorage', e);
     }
   };
+
+  const filteredHistory = history.filter((item) =>
+    item.prompt.toLowerCase().includes(historySearch.toLowerCase()),
+  );
 
   // Scroll to bottom of chat when active item or generation changes
   useEffect(() => {
@@ -133,6 +185,11 @@ export default function App() {
     setTempGeneration(null);
     setPromptInput('');
     setError(null);
+    setFollowUpFromGenerationId(null);
+    resetSteps();
+    const nextConversationId = resetConversationId();
+    setConversationId(nextConversationId);
+    setHistory([]);
   };
 
   // Delete specific history item
@@ -210,6 +267,7 @@ export default function App() {
     setIsGenerating(true);
     setError(null);
     setActiveItem(null);
+    resetSteps();
     
     // Set temp state to show the user prompt in chat area immediately
     setTempGeneration({
@@ -237,7 +295,12 @@ export default function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: requestText }),
+        body: JSON.stringify({
+          message: requestText,
+          conversationId,
+          connectionId,
+          followUpFromGenerationId: followUpFromGenerationId ?? undefined,
+        }),
       });
 
       const data = await response.json() as OrchestrationResponse;
@@ -270,6 +333,8 @@ export default function App() {
       setActiveItem(newItem);
       setTempGeneration(null);
       setPromptInput('');
+      setFollowUpFromGenerationId(null);
+      void loadHistory(conversationId);
 
       // Play victory sound or confetti animation
       confetti({
@@ -298,10 +363,10 @@ export default function App() {
   const hasContent = !!(activeItem || tempGeneration);
 
   return (
-    <div className="flex h-screen w-full bg-slate-50/50 text-slate-800 font-sans overflow-hidden">
+    <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50/50 text-slate-800 font-sans overflow-hidden">
       
       {/* Sidebar: History */}
-      <aside className="w-80 border-r border-slate-200/80 bg-white flex flex-col h-full flex-shrink-0 select-none">
+      <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-200/80 bg-white flex flex-col h-48 md:h-full flex-shrink-0 select-none">
         
         {/* Sidebar Header */}
         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
@@ -321,9 +386,19 @@ export default function App() {
           </button>
         </div>
 
+        <div className="px-3 pb-2">
+          <input
+            type="search"
+            value={historySearch}
+            onChange={(event) => setHistorySearch(event.target.value)}
+            placeholder="Search stack history..."
+            className="w-full h-8 px-3 rounded-lg border border-slate-200 bg-slate-50 text-xs focus:outline-none focus:border-teal-500"
+          />
+        </div>
+
         {/* History List */}
         <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
-          {history.length === 0 ? (
+          {filteredHistory.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400">
               <History className="h-8 w-8 stroke-1 mb-2 text-slate-300" />
               <p className="text-xs">No generations yet</p>
@@ -332,7 +407,7 @@ export default function App() {
               </p>
             </div>
           ) : (
-            history.map((item) => {
+            filteredHistory.map((item) => {
               const isActive = activeItem?.id === item.id;
               return (
                 <div
@@ -354,8 +429,14 @@ export default function App() {
                   </p>
                   <div className="flex items-center justify-between mt-1.5">
                     <span className="text-[10px] text-slate-400">
-                      {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(item.timestamp).toLocaleString([], {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </span>
+                    <span className="text-[10px] uppercase text-slate-400">{item.status.replace('_', ' ')}</span>
                     <button
                       onClick={(e) => handleDeleteHistoryItem(e, item.id)}
                       className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all absolute right-2.5 top-2.5"
@@ -407,8 +488,10 @@ export default function App() {
           <div className="flex items-center gap-4">
             {/* Status indicator */}
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-100">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-semibold text-slate-500">API Connection Active</span>
+              <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+              <span className="text-[10px] font-semibold text-slate-500">
+                {isConnected ? 'Pipeline stream connected' : 'Pipeline stream offline'}
+              </span>
             </div>
           </div>
         </header>
@@ -463,10 +546,10 @@ export default function App() {
             </div>
           ) : (
             /* Active Generation Workspace (Split layout: Chat vs Code) */
-            <div className="flex-1 flex h-full overflow-hidden">
+            <div className="flex-1 flex flex-col lg:flex-row h-full overflow-hidden">
               
               {/* Left Column: Chat Conversation */}
-              <div className="w-[38%] border-r border-slate-200/80 bg-white flex flex-col h-full overflow-hidden">
+              <div className="w-full lg:w-[38%] border-b lg:border-b-0 lg:border-r border-slate-200/80 bg-white flex flex-col h-72 lg:h-full overflow-hidden">
                 <div className="p-4 border-b border-slate-100 bg-slate-50/20">
                   <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Conversation</span>
                 </div>
@@ -477,7 +560,9 @@ export default function App() {
                     <div className="bg-slate-100 text-slate-800 text-xs px-4 py-2.5 rounded-2xl rounded-tr-sm max-w-[85%] leading-relaxed shadow-sm">
                       {currentPrompt}
                     </div>
-                    <span className="text-[10px] text-slate-400 px-1 font-medium">You</span>
+                    <span className="text-[10px] text-slate-400 px-1 font-medium">
+                      You · {new Date(activeItem?.timestamp ?? Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </div>
 
                   {/* AI Explanation Response */}
@@ -516,8 +601,16 @@ export default function App() {
                         </div>
                       )}
                     </div>
-                    <span className="text-[10px] text-slate-400 px-1 font-medium">Apex AI</span>
+                    <span className="text-[10px] text-slate-400 px-1 font-medium">
+                      Apex AI · {activeItem ? new Date(activeItem.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'now'}
+                    </span>
                   </div>
+
+                  {(isGenerating || steps.length > 0) && (
+                    <div className="pt-2">
+                      <PipelineSteps steps={steps} isActive={isGenerating} />
+                    </div>
+                  )}
                   
                   <div ref={chatEndRef} />
                 </div>
@@ -540,6 +633,18 @@ export default function App() {
                       <CostEstimatePanel costEstimate={currentCostEstimate} />
                       <SecurityFlagsPanel flags={currentSecurityFlags} />
                     </div>
+                    {activeItem && activeItem.status !== 'generating' && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFollowUpFromGenerationId(activeItem.generationId);
+                          setPromptInput(`Refine the current stack: `);
+                        }}
+                        className="text-xs font-semibold text-teal-700 hover:text-teal-900"
+                      >
+                        Refine this stack with a follow-up prompt
+                      </button>
+                    )}
                   </div>
                 )}
 
@@ -640,7 +745,9 @@ export default function App() {
             <div className="flex-1 relative">
               <input
                 type="text"
-                placeholder="Ask Apex to generate some CDK stack (e.g. 'S3 bucket with KMS encryption')..."
+                placeholder={followUpFromGenerationId
+                ? 'Describe how to refine the selected stack...'
+                : "Ask Apex to generate some CDK stack (e.g. 'S3 bucket with KMS encryption')..."}
                 value={promptInput}
                 onChange={(e) => setPromptInput(e.target.value)}
                 disabled={isGenerating}

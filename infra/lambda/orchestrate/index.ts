@@ -7,12 +7,20 @@ import { z } from 'zod';
 import { analyzeTemplate, TemplateAnalysisSchema } from '../../../packages/changeset/src/analyzer';
 import { buildDiffRenderModel } from '../../../packages/changeset/src/diffRenderer';
 import { getAnthropicApiKey } from '../shared/anthropicApiKey';
+import {
+  createPipelineStreamer,
+  PipelineStepMessage,
+  shouldSimulateSlowSteps,
+  sleep,
+} from '../shared/pipelineStream';
 import { GeneratedCdkCodeSchema, generateCdkCode } from '../shared/prompt';
 
 const OrchestrationRequestSchema = z
   .object({
     conversationId: z.string().min(1).optional(),
     generationId: z.string().min(1).optional(),
+    connectionId: z.string().min(1).optional(),
+    followUpFromGenerationId: z.string().min(1).optional(),
     request: z.string().min(1).optional(),
     message: z.string().min(1).optional(),
   })
@@ -22,6 +30,8 @@ const OrchestrationRequestSchema = z
   .transform((value) => ({
     conversationId: value.conversationId ?? randomUUID(),
     generationId: value.generationId ?? randomUUID(),
+    connectionId: value.connectionId,
+    followUpFromGenerationId: value.followUpFromGenerationId,
     request: value.request ?? value.message!,
   }));
 
@@ -75,6 +85,7 @@ export interface OrchestrationDependencies {
   getApiKey?: () => Promise<string>;
   generate?: (anthropic: Anthropic, request: string) => Promise<z.infer<typeof GeneratedCdkCodeSchema>>;
   analyze?: typeof analyzeTemplate;
+  emitStep?: (connectionId: string | undefined, message: PipelineStepMessage) => Promise<void>;
   now?: () => Date;
 }
 
@@ -137,6 +148,32 @@ const getGeneration = async (
   return result.Item ? StoredGenerationSchema.parse(unmarshall(result.Item)) : undefined;
 };
 
+const buildFollowUpPrompt = async (
+  dynamoDbClient: DynamoDBClient,
+  conversationId: string,
+  followUpFromGenerationId: string | undefined,
+  request: string,
+) => {
+  if (!followUpFromGenerationId) {
+    return request;
+  }
+
+  const previous = await getGeneration(dynamoDbClient, conversationId, followUpFromGenerationId);
+  if (!previous?.generatedCdkCode) {
+    return request;
+  }
+
+  return [
+    'Refine the following existing AWS CDK TypeScript stack based on the user request.',
+    'Return the full updated stack, not a patch.',
+    '',
+    'Previous CDK code:',
+    previous.generatedCdkCode,
+    '',
+    `Refinement request: ${request}`,
+  ].join('\n');
+};
+
 const invokeSandbox = async (
   lambdaClient: LambdaClient,
   code: string,
@@ -158,6 +195,36 @@ const invokeSandbox = async (
   return SandboxResponseSchema.parse(JSON.parse(new TextDecoder().decode(invokeResult.Payload)));
 };
 
+const runStep = async (
+  emit: OrchestrationDependencies['emitStep'],
+  connectionId: string | undefined,
+  base: Omit<PipelineStepMessage, 'label' | 'status' | 'durationMs' | 'output'>,
+  label: string,
+  action: () => Promise<string | undefined>,
+) => {
+  const startedAt = Date.now();
+  await emit?.(connectionId, {
+    ...base,
+    label,
+    status: 'running',
+  });
+
+  if (shouldSimulateSlowSteps()) {
+    await sleep(750);
+  }
+
+  const output = await action();
+  await emit?.(connectionId, {
+    ...base,
+    label,
+    status: 'done',
+    durationMs: Date.now() - startedAt,
+    output,
+  });
+
+  return output;
+};
+
 export const createOrchestrationHandler = (dependencies: OrchestrationDependencies = {}) => {
   const dynamoDbClient = dependencies.dynamoDbClient ?? new DynamoDBClient({});
   const lambdaClient = dependencies.lambdaClient ?? new LambdaClient({});
@@ -165,11 +232,17 @@ export const createOrchestrationHandler = (dependencies: OrchestrationDependenci
   const getApiKey = dependencies.getApiKey ?? getAnthropicApiKey;
   const generate = dependencies.generate ?? generateCdkCode;
   const analyze = dependencies.analyze ?? analyzeTemplate;
+  const emitStep = dependencies.emitStep ?? createPipelineStreamer().emitStep;
   const now = dependencies.now ?? (() => new Date());
 
   return async (event: unknown) => {
     const request = OrchestrationRequestSchema.parse(parseEvent(event));
     const createdAt = now().toISOString();
+    const stepBase = {
+      type: 'pipeline_step' as const,
+      conversationId: request.conversationId,
+      generationId: request.generationId,
+    };
 
     const initialItem: StoredGeneration = {
       conversationId: request.conversationId,
@@ -183,31 +256,96 @@ export const createOrchestrationHandler = (dependencies: OrchestrationDependenci
     await putGeneration(dynamoDbClient, initialItem);
 
     try {
+      const prompt = await buildFollowUpPrompt(
+        dynamoDbClient,
+        request.conversationId,
+        request.followUpFromGenerationId,
+        request.request,
+      );
+
       const anthropic = anthropicFactory(await getApiKey());
-      const generated = GeneratedCdkCodeSchema.parse(await generate(anthropic, request.request));
-      const sandboxResponse = await invokeSandbox(lambdaClient, generated.code);
+
+      await runStep(
+        emitStep,
+        request.connectionId,
+        { ...stepBase, step: 'generating_code' },
+        'Generating CDK code with Claude',
+        async () => {
+          const generated = GeneratedCdkCodeSchema.parse(await generate(anthropic, prompt));
+          initialItem.generatedCdkCode = generated.code;
+          initialItem.generatedExplanation = generated.explanation;
+          return generated.explanation;
+        },
+      );
+
+      const generated = {
+        code: initialItem.generatedCdkCode!,
+        explanation: initialItem.generatedExplanation!,
+      };
+
+      const sandboxResponse = await (async () => {
+        let sandboxResult: z.infer<typeof SandboxResponseSchema> | undefined;
+
+        await runStep(
+          emitStep,
+          request.connectionId,
+          { ...stepBase, step: 'validating' },
+          'Running sandbox cdk synth',
+          async () => {
+            sandboxResult = await invokeSandbox(lambdaClient, generated.code);
+            if (!sandboxResult.success) {
+              throw new Error(`Sandbox synthesis failed: ${sandboxResult.error}${sandboxResult.stderr ? `\n${sandboxResult.stderr}` : ''}`);
+            }
+            return 'CloudFormation template synthesized successfully';
+          },
+        );
+
+        return sandboxResult!;
+      })();
 
       if (!sandboxResponse.success) {
-        throw new Error(`Sandbox synthesis failed: ${sandboxResponse.error}${sandboxResponse.stderr ? `\n${sandboxResponse.stderr}` : ''}`);
+        throw new Error(`Sandbox synthesis failed: ${sandboxResponse.error}`);
       }
 
-      const analysis = TemplateAnalysisSchema.parse(await analyze(sandboxResponse.template));
+      let analysis: z.infer<typeof TemplateAnalysisSchema> | undefined;
+
+      await runStep(
+        emitStep,
+        request.connectionId,
+        { ...stepBase, step: 'analyzing' },
+        'Building diff, cost estimate, and security scan',
+        async () => {
+          analysis = TemplateAnalysisSchema.parse(await analyze(sandboxResponse.template));
+          return analysis!.changeset.resources.length > 0
+            ? `${analysis!.changeset.resources.length} resources analyzed`
+            : 'No resources found in template';
+        },
+      );
+
       const updatedAt = now().toISOString();
       const finalItem: StoredGeneration = {
         ...initialItem,
         generatedCdkCode: generated.code,
         generatedExplanation: generated.explanation,
         cloudFormationTemplate: sandboxResponse.template,
-        changeset: analysis.changeset,
-        costEstimate: analysis.costEstimate,
-        securityFlags: analysis.securityScan.flags,
+        changeset: analysis!.changeset,
+        costEstimate: analysis!.costEstimate,
+        securityFlags: analysis!.securityScan.flags,
         status: 'awaiting_approval',
         updatedAt,
       };
 
       await putGeneration(dynamoDbClient, finalItem);
 
-      const diff = buildDiffRenderModel(analysis.changeset);
+      const diff = buildDiffRenderModel(analysis!.changeset);
+
+      await emitStep(request.connectionId, {
+        ...stepBase,
+        step: 'awaiting_approval',
+        label: 'Ready for approval',
+        status: 'done',
+        output: diff.summary,
+      });
 
       return response(200, {
         conversationId: request.conversationId,
@@ -230,6 +368,14 @@ export const createOrchestrationHandler = (dependencies: OrchestrationDependenci
         status: 'failed',
         error: message,
         updatedAt: failedAt,
+      });
+
+      await emitStep(request.connectionId, {
+        ...stepBase,
+        step: 'failed',
+        label: 'Pipeline failed',
+        status: 'error',
+        output: message.slice(0, 280),
       });
 
       return response(500, {

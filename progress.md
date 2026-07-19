@@ -6,20 +6,20 @@ Tracks implementation against [context.md](./context.md) (PRD v4). For code walk
 
 ---
 
-## Summary — Day 14 status: **Complete**
+## Summary — Day 17 status: **Complete**
 
 | Milestone | Status |
 |-----------|--------|
 | Week 1 (Day 1–7) | ✅ Complete |
-| Week 2 Day 8–9 (Sandbox) | ✅ Complete |
-| Week 2 Day 10–11 (Diff/Cost/Security) | ✅ Complete (backend + UI) |
-| Week 2 Day 12–14 (Orchestration + DynamoDB + Approval) | ✅ Complete |
+| Week 2 Day 8–14 (Sandbox + Orchestration) | ✅ Complete |
+| Week 3 Day 15–16 (WebSocket streaming) | ✅ Complete |
+| Week 3 Day 17–19 (UI polish + history) | ✅ Complete (Day 17 scope) |
 
-**Not in Day 14 scope (Week 3+):** WebSockets, S3 storage, CloudFormation deploy, Cognito, DynamoDB-backed history sidebar.
+**Next up (Day 18–21):** deeper mobile polish, rate limiting, broader error UX, more tests.
 
 ---
 
-## How to verify everything yourself
+## How to verify Day 15–17 features
 
 ### Prerequisites
 
