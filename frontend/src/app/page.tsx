@@ -21,11 +21,14 @@ import confetti from 'canvas-confetti';
 import { ApprovalBar } from '../components/ApprovalBar';
 import { CodeHighlight } from '../components/CodeHighlight';
 import { CostEstimatePanel } from '../components/CostEstimatePanel';
+import { DeployLogPanel } from '../components/DeployLogPanel';
+import { DeploymentOutputsPanel } from '../components/DeploymentOutputsPanel';
 import { DiffPanel } from '../components/DiffPanel';
 import { PipelineSteps } from '../components/PipelineSteps';
 import { SecurityFlagsPanel } from '../components/SecurityFlagsPanel';
 import { usePipelineWebSocket } from '../hooks/usePipelineWebSocket';
 import { getConversationId, resetConversationId } from '../lib/conversation';
+import { isDeployStatus } from '../lib/deploy';
 import { buildDiffFromChangeset } from '../lib/diff';
 import { cn } from '../lib/utils';
 import type { CostEstimate, GenerationItem, GenerationStatus, OrchestrationResponse, SecurityFlag } from '../lib/types';
@@ -61,9 +64,20 @@ const mapHistoryRecord = (record: Record<string, unknown>): GenerationItem | nul
     diff: buildDiffFromChangeset(record.changeset as Parameters<typeof buildDiffFromChangeset>[0]),
     costEstimate: record.costEstimate as CostEstimate | undefined,
     securityFlags: record.securityFlags as SecurityFlag[] | undefined,
+    deploymentStackName: record.deploymentStackName
+      ? String(record.deploymentStackName)
+      : undefined,
+    deploymentStackId: record.deploymentStackId
+      ? String(record.deploymentStackId)
+      : undefined,
+    deploymentOutputs: record.deploymentOutputs as Record<string, string> | undefined,
+    deploymentError: record.deploymentError ? String(record.deploymentError) : undefined,
     timestamp: record.createdAt ? new Date(String(record.createdAt)).getTime() : Date.now(),
   };
 };
+
+const formatStatusLabel = (status: GenerationStatus) =>
+  status.replace(/_/g, ' ');
 
 const EXAMPLE_PROMPTS = [
   {
@@ -83,20 +97,30 @@ const EXAMPLE_PROMPTS = [
 export default function App() {
   const [history, setHistory] = useState<GenerationItem[]>([]);
   const [historySearch, setHistorySearch] = useState('');
-  const [conversationId, setConversationId] = useState('');
+  const [conversationId, setConversationId] = useState(() => getConversationId());
   const [followUpFromGenerationId, setFollowUpFromGenerationId] = useState<string | null>(null);
   const [promptInput, setPromptInput] = useState('');
   const [activeItem, setActiveItem] = useState<GenerationItem | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { connectionId, isConnected, steps, resetSteps } = usePipelineWebSocket();
-  
+  const {
+    connectionId,
+    isConnected,
+    steps,
+    resetSteps,
+    deployEvents,
+    deployStatus,
+    resetDeploy,
+  } = usePipelineWebSocket();
+
   // Temporary generation state before saving to history
   const [tempGeneration, setTempGeneration] = useState<GenerationItem | null>(null);
 
   const [copied, setCopied] = useState(false);
   const [isApprovalSubmitting, setIsApprovalSubmitting] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const reconciledTerminalRef = useRef<string | null>(null);
+  const historyLoadedRef = useRef(false);
 
   const loadHistory = useCallback(async (targetConversationId: string) => {
     const historyUrl = getHistoryUrl(targetConversationId);
@@ -125,10 +149,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const id = getConversationId();
-    setConversationId(id);
-    void loadHistory(id);
-  }, [loadHistory]);
+    if (historyLoadedRef.current) {
+      return;
+    }
+
+    historyLoadedRef.current = true;
+    void loadHistory(conversationId);
+  }, [conversationId, loadHistory]);
 
   // Keep a local cache for quick reloads; DynamoDB remains source of truth
   const saveHistory = (newHistory: GenerationItem[]) => {
@@ -187,6 +214,8 @@ export default function App() {
     setError(null);
     setFollowUpFromGenerationId(null);
     resetSteps();
+    resetDeploy();
+    reconciledTerminalRef.current = null;
     const nextConversationId = resetConversationId();
     setConversationId(nextConversationId);
     setHistory([]);
@@ -232,6 +261,7 @@ export default function App() {
           conversationId: item.conversationId,
           generationId: item.generationId,
           action,
+          connectionId,
         }),
       });
 
@@ -243,6 +273,10 @@ export default function App() {
       const updatedItem: GenerationItem = {
         ...item,
         status: data.status,
+        deploymentStackName: data.item?.deploymentStackName ?? item.deploymentStackName,
+        deploymentStackId: data.item?.deploymentStackId ?? item.deploymentStackId,
+        deploymentOutputs: data.item?.deploymentOutputs ?? item.deploymentOutputs,
+        deploymentError: data.item?.deploymentError ?? item.deploymentError,
       };
 
       const updatedHistory = history.map((entry) => (
@@ -251,6 +285,11 @@ export default function App() {
       saveHistory(updatedHistory);
       setActiveItem(updatedItem);
       setTempGeneration(null);
+
+      if (action === 'approve') {
+        resetDeploy();
+        reconciledTerminalRef.current = null;
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Approval request failed.');
     } finally {
@@ -259,15 +298,17 @@ export default function App() {
   };
 
   // Trigger CDK code generation via orchestration pipeline
-  const handleGenerate = async (e?: React.FormEvent) => {
+  const handleGenerate = async (e?: React.FormEvent, overridePrompt?: string) => {
     if (e) e.preventDefault();
-    if (!promptInput.trim() || isGenerating) return;
+    const requestText = (overridePrompt ?? promptInput).trim();
+    if (!requestText || isGenerating) return;
 
-    const requestText = promptInput;
     setIsGenerating(true);
     setError(null);
     setActiveItem(null);
     resetSteps();
+    resetDeploy();
+    reconciledTerminalRef.current = null;
     
     // Set temp state to show the user prompt in chat area immediately
     setTempGeneration({
@@ -332,7 +373,9 @@ export default function App() {
       saveHistory(updatedHistory);
       setActiveItem(newItem);
       setTempGeneration(null);
-      setPromptInput('');
+      if (!overridePrompt) {
+        setPromptInput('');
+      }
       setFollowUpFromGenerationId(null);
       void loadHistory(conversationId);
 
@@ -352,14 +395,53 @@ export default function App() {
     }
   };
 
+  const terminalDeployEvent = [...deployEvents].reverse().find((event) =>
+    event.phase === 'complete' || event.phase === 'failed');
+
+  useEffect(() => {
+    if (!activeItem?.conversationId || !deployStatus) {
+      return;
+    }
+
+    if (deployStatus !== 'deployed' && deployStatus !== 'deploy_failed') {
+      return;
+    }
+
+    const terminalKey = `${activeItem.generationId}:${deployStatus}`;
+    if (reconciledTerminalRef.current === terminalKey) {
+      return;
+    }
+
+    reconciledTerminalRef.current = terminalKey;
+    void loadHistory(activeItem.conversationId);
+  }, [activeItem?.conversationId, activeItem?.generationId, deployStatus, loadHistory]);
+
+  const handleRerun = () => {
+    if (!activeItem?.prompt || isGenerating) {
+      return;
+    }
+
+    setPromptInput(activeItem.prompt);
+    void handleGenerate(undefined, activeItem.prompt);
+  };
+
   // Determine current active item content to show in Workspace
   const currentPrompt = activeItem?.prompt || tempGeneration?.prompt || '';
   const currentCode = activeItem?.code || tempGeneration?.code || '';
   const currentExplanation = activeItem?.explanation || tempGeneration?.explanation || '';
-  const currentStatus = activeItem?.status || tempGeneration?.status;
+  const currentStatus = (deployStatus && activeItem)
+    ? deployStatus
+    : (activeItem?.status || tempGeneration?.status);
   const currentDiff = activeItem?.diff || tempGeneration?.diff;
   const currentCostEstimate = activeItem?.costEstimate || tempGeneration?.costEstimate;
   const currentSecurityFlags = activeItem?.securityFlags || tempGeneration?.securityFlags;
+  const currentStackName = terminalDeployEvent?.stackName ?? activeItem?.deploymentStackName;
+  const currentStackId = terminalDeployEvent?.stackId ?? activeItem?.deploymentStackId;
+  const currentDeploymentOutputs = terminalDeployEvent?.outputs ?? activeItem?.deploymentOutputs;
+  const currentDeploymentError = currentStatus === 'deploy_failed'
+    ? (terminalDeployEvent?.message ?? activeItem?.deploymentError)
+    : activeItem?.deploymentError;
+  const promptTimestamp = activeItem?.timestamp ?? tempGeneration?.timestamp ?? 0;
   const hasContent = !!(activeItem || tempGeneration);
 
   return (
@@ -436,7 +518,7 @@ export default function App() {
                         minute: '2-digit',
                       })}
                     </span>
-                    <span className="text-[10px] uppercase text-slate-400">{item.status.replace('_', ' ')}</span>
+                    <span className="text-[10px] uppercase text-slate-400">{formatStatusLabel(item.status)}</span>
                     <button
                       onClick={(e) => handleDeleteHistoryItem(e, item.id)}
                       className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all absolute right-2.5 top-2.5"
@@ -561,7 +643,9 @@ export default function App() {
                       {currentPrompt}
                     </div>
                     <span className="text-[10px] text-slate-400 px-1 font-medium">
-                      You · {new Date(activeItem?.timestamp ?? Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      You · {promptTimestamp
+                        ? new Date(promptTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : 'now'}
                     </span>
                   </div>
 
@@ -586,10 +670,22 @@ export default function App() {
                               <span>Sandbox synth passed — awaiting your approval.</span>
                             </div>
                           )}
-                          {currentStatus === 'approved' && (
+                          {currentStatus === 'deploying' && (
+                            <div className="mt-2.5 pt-2 border-t border-teal-100/40 text-[10px] text-teal-700 flex items-center gap-1.5">
+                              <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
+                              <span>Deploying CloudFormation stack…</span>
+                            </div>
+                          )}
+                          {currentStatus === 'deployed' && (
                             <div className="mt-2.5 pt-2 border-t border-teal-100/40 text-[10px] text-emerald-600 flex items-center gap-1.5">
                               <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-                              <span>Approved and saved to DynamoDB.</span>
+                              <span>Stack deployed successfully.</span>
+                            </div>
+                          )}
+                          {currentStatus === 'deploy_failed' && (
+                            <div className="mt-2.5 pt-2 border-t border-teal-100/40 text-[10px] text-rose-600 flex items-center gap-1.5">
+                              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                              <span>Deployment failed — stack rolled back.</span>
                             </div>
                           )}
                           {!currentStatus || currentStatus === 'generating' ? (
@@ -618,13 +714,14 @@ export default function App() {
 
               {/* Right Column: Code + preview panels */}
               <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-100">
-                {(currentDiff || currentCostEstimate || currentSecurityFlags) && !isGenerating && (
-                  <div className="border-b border-slate-200 bg-slate-50 p-4 space-y-3 overflow-y-auto max-h-[42%] shrink-0">
+                {(currentDiff || currentCostEstimate || currentSecurityFlags || isDeployStatus(currentStatus)) && !isGenerating && (
+                  <div className="border-b border-slate-200 bg-slate-50 p-4 space-y-3 overflow-y-auto max-h-[48%] shrink-0">
                     {currentStatus && (
                       <ApprovalBar
                         status={currentStatus}
                         onApprove={() => submitApproval('approve')}
                         onCancel={() => submitApproval('cancel')}
+                        onRetryDeploy={() => submitApproval('approve')}
                         isSubmitting={isApprovalSubmitting}
                       />
                     )}
@@ -633,17 +730,39 @@ export default function App() {
                       <CostEstimatePanel costEstimate={currentCostEstimate} />
                       <SecurityFlagsPanel flags={currentSecurityFlags} />
                     </div>
+                    {isDeployStatus(currentStatus) && (
+                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                        <DeployLogPanel events={deployEvents} status={currentStatus} />
+                        <DeploymentOutputsPanel
+                          status={currentStatus}
+                          stackName={currentStackName}
+                          stackId={currentStackId}
+                          outputs={currentDeploymentOutputs}
+                          deploymentError={currentDeploymentError}
+                        />
+                      </div>
+                    )}
                     {activeItem && activeItem.status !== 'generating' && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFollowUpFromGenerationId(activeItem.generationId);
-                          setPromptInput(`Refine the current stack: `);
-                        }}
-                        className="text-xs font-semibold text-teal-700 hover:text-teal-900"
-                      >
-                        Refine this stack with a follow-up prompt
-                      </button>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFollowUpFromGenerationId(activeItem.generationId);
+                            setPromptInput(`Refine the current stack: `);
+                          }}
+                          className="text-xs font-semibold text-teal-700 hover:text-teal-900"
+                        >
+                          Refine this stack with a follow-up prompt
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleRerun}
+                          disabled={isGenerating}
+                          className="text-xs font-semibold text-slate-600 hover:text-slate-900 disabled:opacity-50"
+                        >
+                          Re-run generation
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}

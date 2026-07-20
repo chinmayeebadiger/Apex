@@ -1,51 +1,34 @@
-import { DynamoDBClient, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { z } from 'zod';
+import {
+  getGeneration,
+  putGeneration,
+  type StoredGeneration,
+} from '../shared/generation';
 
 const ApprovalRequestSchema = z.object({
   conversationId: z.string().min(1),
   generationId: z.string().min(1),
   action: z.enum(['approve', 'cancel']),
+  connectionId: z.string().min(1).optional(),
 });
 
-const GenerationStatusSchema = z.enum([
-  'generating',
-  'awaiting_approval',
-  'approved',
-  'cancelled',
-  'failed',
-]);
-
-const StoredGenerationSchema = z.object({
-  conversationId: z.string(),
-  generationId: z.string(),
-  originalRequest: z.string(),
-  generatedCdkCode: z.string().optional(),
-  generatedExplanation: z.string().optional(),
-  cloudFormationTemplate: z.unknown().optional(),
-  changeset: z.unknown().optional(),
-  costEstimate: z.unknown().optional(),
-  securityFlags: z.unknown().optional(),
-  status: GenerationStatusSchema,
-  error: z.string().optional(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
-
-export type StoredGeneration = z.infer<typeof StoredGenerationSchema>;
+export type { StoredGeneration };
 
 export interface ApprovalDependencies {
   dynamoDbClient?: DynamoDBClient;
+  lambdaClient?: LambdaClient;
   now?: () => Date;
 }
 
-const getTableName = () => {
-  const tableName = process.env.GENERATIONS_TABLE_NAME;
-  if (!tableName) {
-    throw new Error('GENERATIONS_TABLE_NAME is not configured');
+const getDeployFunctionName = () => {
+  const functionName = process.env.DEPLOY_FUNCTION_NAME;
+  if (!functionName) {
+    throw new Error('DEPLOY_FUNCTION_NAME is not configured');
   }
 
-  return tableName;
+  return functionName;
 };
 
 const response = (statusCode: number, body: unknown) => ({
@@ -63,31 +46,9 @@ const parseEvent = (event: unknown) => {
   return event;
 };
 
-const getGeneration = async (
-  dynamoDbClient: DynamoDBClient,
-  conversationId: string,
-  generationId: string,
-) => {
-  const result = await dynamoDbClient.send(new GetItemCommand({
-    TableName: getTableName(),
-    Key: marshall({ conversationId, generationId }),
-  }));
-
-  return result.Item ? StoredGenerationSchema.parse(unmarshall(result.Item)) : undefined;
-};
-
-const putGeneration = async (
-  dynamoDbClient: DynamoDBClient,
-  item: StoredGeneration,
-) => {
-  await dynamoDbClient.send(new PutItemCommand({
-    TableName: getTableName(),
-    Item: marshall(StoredGenerationSchema.parse(item), { removeUndefinedValues: true }),
-  }));
-};
-
 export const createApprovalHandler = (dependencies: ApprovalDependencies = {}) => {
   const dynamoDbClient = dependencies.dynamoDbClient ?? new DynamoDBClient({});
+  const lambdaClient = dependencies.lambdaClient ?? new LambdaClient({});
   const now = dependencies.now ?? (() => new Date());
 
   return async (event: unknown) => {
@@ -103,29 +64,83 @@ export const createApprovalHandler = (dependencies: ApprovalDependencies = {}) =
         return response(404, { error: 'Generation not found' });
       }
 
-      if (existing.status !== 'awaiting_approval') {
+      const canCancel = existing.status === 'awaiting_approval';
+      const canApprove = existing.status === 'awaiting_approval'
+        || existing.status === 'deploy_failed';
+
+      if (request.action === 'cancel' && !canCancel) {
         return response(409, {
-          error: `Generation is in status "${existing.status}" and cannot be ${request.action}d`,
+          error: `Generation is in status "${existing.status}" and cannot be cancelled`,
+          status: existing.status,
+        });
+      }
+
+      if (request.action === 'approve' && !canApprove) {
+        return response(409, {
+          error: `Generation is in status "${existing.status}" and cannot be approved`,
           status: existing.status,
         });
       }
 
       const updatedAt = now().toISOString();
-      const nextStatus = request.action === 'approve' ? 'approved' : 'cancelled';
-      const updatedItem: StoredGeneration = {
+
+      if (request.action === 'cancel') {
+        const updatedItem: StoredGeneration = {
+          ...existing,
+          status: 'cancelled',
+          error: 'Deployment cancelled by user',
+          updatedAt,
+        };
+
+        await putGeneration(dynamoDbClient, updatedItem);
+
+        return response(200, {
+          conversationId: request.conversationId,
+          generationId: request.generationId,
+          status: 'cancelled',
+          item: updatedItem,
+        });
+      }
+
+      const deployingItem: StoredGeneration = {
         ...existing,
-        status: nextStatus,
-        error: request.action === 'cancel' ? 'Deployment cancelled by user' : undefined,
+        status: 'deploying',
+        error: undefined,
+        deploymentError: undefined,
         updatedAt,
       };
 
-      await putGeneration(dynamoDbClient, updatedItem);
+      await putGeneration(dynamoDbClient, deployingItem);
+
+      try {
+        await lambdaClient.send(new InvokeCommand({
+          FunctionName: getDeployFunctionName(),
+          InvocationType: 'Event',
+          Payload: Buffer.from(JSON.stringify({
+            conversationId: request.conversationId,
+            generationId: request.generationId,
+            connectionId: request.connectionId,
+          })),
+        }));
+      } catch (invokeError) {
+        const reverted: StoredGeneration = {
+          ...existing,
+          status: 'awaiting_approval',
+          updatedAt: now().toISOString(),
+        };
+        await putGeneration(dynamoDbClient, reverted);
+
+        const message = invokeError instanceof Error
+          ? invokeError.message
+          : 'Failed to start deployment';
+        return response(502, { error: message, status: 'awaiting_approval' });
+      }
 
       return response(200, {
         conversationId: request.conversationId,
         generationId: request.generationId,
-        status: nextStatus,
-        item: updatedItem,
+        status: 'deploying',
+        item: deployingItem,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown approval error';

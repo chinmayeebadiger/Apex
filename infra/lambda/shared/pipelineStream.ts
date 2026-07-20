@@ -23,6 +23,31 @@ export interface PipelineStepMessage {
   output?: string;
 }
 
+export type DeployEventPhase =
+  | 'preparing'
+  | 'change_set'
+  | 'executing'
+  | 'polling'
+  | 'complete'
+  | 'failed'
+  | 'rolling_back';
+
+export interface DeployEventMessage {
+  type: 'deploy_event';
+  conversationId: string;
+  generationId: string;
+  phase: DeployEventPhase;
+  status: 'deploying' | 'deployed' | 'deploy_failed';
+  resourceStatus?: string;
+  logicalId?: string;
+  resourceType?: string;
+  message?: string;
+  timestamp: string;
+  outputs?: Record<string, string>;
+  stackName?: string;
+  stackId?: string;
+}
+
 const getManagementEndpoint = () => {
   const endpoint = process.env.WEBSOCKET_MANAGEMENT_ENDPOINT;
   if (!endpoint) {
@@ -47,9 +72,9 @@ export const createPipelineStreamer = (
     return client;
   };
 
-  const emitStep = async (
+  const post = async (
     connectionId: string | undefined,
-    message: PipelineStepMessage,
+    message: PipelineStepMessage | DeployEventMessage,
   ) => {
     if (!connectionId) {
       return;
@@ -70,7 +95,17 @@ export const createPipelineStreamer = (
     }
   };
 
-  return { emitStep };
+  const emitStep = async (
+    connectionId: string | undefined,
+    message: PipelineStepMessage,
+  ) => post(connectionId, message);
+
+  const emitDeployEvent = async (
+    connectionId: string | undefined,
+    message: DeployEventMessage,
+  ) => post(connectionId, message);
+
+  return { emitStep, emitDeployEvent };
 };
 
 export const sleep = (milliseconds: number) =>

@@ -1,6 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { DeployEventMessage } from '../lib/deploy';
+import type { GenerationStatus } from '../lib/types';
 
 export type PipelineStepId =
   | 'generating_code'
@@ -37,9 +39,16 @@ export const usePipelineWebSocket = () => {
   const [connectionId, setConnectionId] = useState<string | undefined>();
   const [isConnected, setIsConnected] = useState(false);
   const [steps, setSteps] = useState<PipelineStep[]>([]);
+  const [deployEvents, setDeployEvents] = useState<DeployEventMessage[]>([]);
+  const [deployStatus, setDeployStatus] = useState<GenerationStatus | undefined>();
 
   const resetSteps = useCallback(() => {
     setSteps([]);
+  }, []);
+
+  const resetDeploy = useCallback(() => {
+    setDeployEvents([]);
+    setDeployStatus(undefined);
   }, []);
 
   useEffect(() => {
@@ -56,7 +65,10 @@ export const usePipelineWebSocket = () => {
     };
 
     socket.onmessage = (event) => {
-      const payload = JSON.parse(event.data) as ConnectedMessage | PipelineStepMessage;
+      const payload = JSON.parse(event.data) as
+        | ConnectedMessage
+        | PipelineStepMessage
+        | DeployEventMessage;
 
       if (payload.type === 'connected') {
         setConnectionId(payload.connectionId);
@@ -75,6 +87,12 @@ export const usePipelineWebSocket = () => {
           });
           return next.sort((left, right) => left.step.localeCompare(right.step));
         });
+        return;
+      }
+
+      if (payload.type === 'deploy_event') {
+        setDeployEvents((current) => [...current, payload]);
+        setDeployStatus(payload.status);
       }
     };
 
@@ -92,5 +110,8 @@ export const usePipelineWebSocket = () => {
     isConnected,
     steps,
     resetSteps,
+    deployEvents,
+    deployStatus,
+    resetDeploy,
   };
 };

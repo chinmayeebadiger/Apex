@@ -1,12 +1,16 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { DynamoDBClient, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { randomUUID } from 'crypto';
 import { z } from 'zod';
 import { analyzeTemplate, TemplateAnalysisSchema } from '../../../packages/changeset/src/analyzer';
 import { buildDiffRenderModel } from '../../../packages/changeset/src/diffRenderer';
 import { getAnthropicApiKey } from '../shared/anthropicApiKey';
+import {
+  getGeneration,
+  putGeneration,
+  type StoredGeneration,
+} from '../shared/generation';
 import {
   createPipelineStreamer,
   PipelineStepMessage,
@@ -51,32 +55,8 @@ const SandboxResponseSchema = z.discriminatedUnion('success', [
   SandboxFailureSchema,
 ]);
 
-const GenerationStatusSchema = z.enum([
-  'generating',
-  'awaiting_approval',
-  'approved',
-  'cancelled',
-  'failed',
-]);
-
-const StoredGenerationSchema = z.object({
-  conversationId: z.string(),
-  generationId: z.string(),
-  originalRequest: z.string(),
-  generatedCdkCode: z.string().optional(),
-  generatedExplanation: z.string().optional(),
-  cloudFormationTemplate: z.unknown().optional(),
-  changeset: z.unknown().optional(),
-  costEstimate: z.unknown().optional(),
-  securityFlags: z.unknown().optional(),
-  status: GenerationStatusSchema,
-  error: z.string().optional(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
-
 export type OrchestrationRequest = z.input<typeof OrchestrationRequestSchema>;
-export type StoredGeneration = z.infer<typeof StoredGenerationSchema>;
+export type { StoredGeneration };
 
 export interface OrchestrationDependencies {
   dynamoDbClient?: DynamoDBClient;
@@ -88,15 +68,6 @@ export interface OrchestrationDependencies {
   emitStep?: (connectionId: string | undefined, message: PipelineStepMessage) => Promise<void>;
   now?: () => Date;
 }
-
-const getTableName = () => {
-  const tableName = process.env.GENERATIONS_TABLE_NAME;
-  if (!tableName) {
-    throw new Error('GENERATIONS_TABLE_NAME is not configured');
-  }
-
-  return tableName;
-};
 
 const getSandboxFunctionName = () => {
   const functionName = process.env.SANDBOX_FUNCTION_NAME;
@@ -120,32 +91,6 @@ const parseEvent = (event: unknown) => {
   }
 
   return event;
-};
-
-const toDynamoItem = (item: StoredGeneration) =>
-  marshall(StoredGenerationSchema.parse(item), { removeUndefinedValues: true });
-
-const putGeneration = async (
-  dynamoDbClient: DynamoDBClient,
-  item: StoredGeneration,
-) => {
-  await dynamoDbClient.send(new PutItemCommand({
-    TableName: getTableName(),
-    Item: toDynamoItem(item),
-  }));
-};
-
-const getGeneration = async (
-  dynamoDbClient: DynamoDBClient,
-  conversationId: string,
-  generationId: string,
-) => {
-  const result = await dynamoDbClient.send(new GetItemCommand({
-    TableName: getTableName(),
-    Key: marshall({ conversationId, generationId }),
-  }));
-
-  return result.Item ? StoredGenerationSchema.parse(unmarshall(result.Item)) : undefined;
 };
 
 const buildFollowUpPrompt = async (

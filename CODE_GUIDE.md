@@ -244,10 +244,48 @@ The frontend now uses the orchestration path exclusively (see [`frontend/src/app
 
 ---
 
-## 12. What's intentionally not built yet (Week 3+)
+## 12. Deploy pipeline (Phase 4 / Week 4)
 
-- WebSocket streaming (Week 3)
-- S3 template storage (architecture doc, not Day 14)
-- CloudFormation deploy on approve (Week 4)
-- DynamoDB-backed history sidebar in UI (DynamoDB writes happen; UI still uses localStorage for sidebar)
-- Cognito auth (Week 4 stretch)
+```mermaid
+sequenceDiagram
+  participant UI as frontend/page.tsx
+  participant Approve as ApprovalLambda
+  participant Deploy as DeployLambda
+  participant S3 as TemplatesBucket
+  participant CFN as CloudFormation
+  participant WS as WebSocket
+
+  UI->>Approve: POST /approve { action, connectionId }
+  Approve->>Approve: status=deploying
+  Approve->>Deploy: Invoke Event
+  Approve-->>UI: { status: deploying }
+  Deploy->>S3: PutObject template
+  Deploy->>CFN: CreateChangeSet + ExecuteChangeSet (RoleARN=DeploymentRole)
+  loop Stack events
+    Deploy->>WS: deploy_event
+    WS-->>UI: DeployLogPanel
+  end
+  Deploy->>Deploy: status=deployed|deploy_failed
+```
+
+| File | Role |
+|------|------|
+| [`infra/lambda/shared/generation.ts`](infra/lambda/shared/generation.ts) | Shared statuses + DynamoDB get/put + stack name helper |
+| [`infra/lambda/deploy/index.ts`](infra/lambda/deploy/index.ts) | CFN change-set lifecycle, event polling, failure/rollback recording |
+| [`infra/lambda/approve/index.ts`](infra/lambda/approve/index.ts) | `awaiting_approval`/`deploy_failed` → `deploying` + async invoke |
+| [`infra/lambda/shared/pipelineStream.ts`](infra/lambda/shared/pipelineStream.ts) | `pipeline_step` + `deploy_event` emitters |
+| [`infra/lib/infra-stack.ts`](infra/lib/infra-stack.ts) | `TemplatesBucket`, `DeploymentRole`, `DeployLambda`, grants/outputs |
+| [`frontend/src/components/DeployLogPanel.tsx`](frontend/src/components/DeployLogPanel.tsx) | xterm live log |
+| [`frontend/src/components/DeploymentOutputsPanel.tsx`](frontend/src/components/DeploymentOutputsPanel.tsx) | Outputs + console link |
+| [`frontend/src/lib/deploy.ts`](frontend/src/lib/deploy.ts) | Client helpers for deploy events/URLs |
+
+Stack naming: `apex-gen-<generationId-first-8>`. Templates: `templates/<generationId>.template.json`.
+
+Tests: [`infra/test/deploy.test.ts`](infra/test/deploy.test.ts), [`infra/test/deploy-infra.test.ts`](infra/test/deploy-infra.test.ts), updated [`infra/test/approval.test.ts`](infra/test/approval.test.ts).
+
+---
+
+## 13. What's intentionally deferred
+
+- Cognito / JWT auth (Phase 4 optional stretch; keep `ENABLE_COGNITO` off)
+- Cross-account/region deploys, Slack bot, GitHub Actions (post-launch)

@@ -22,9 +22,11 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.2",
     "@aws-sdk/client-apigatewaymanagementapi": "^3.1069.0",
+    "@aws-sdk/client-cloudformation": "^3.1090.0",
     "@aws-sdk/client-dynamodb": "^3.1069.0",
     "@aws-sdk/client-lambda": "^3.1069.0",
     "@aws-sdk/client-pricing": "^3.1069.0",
+    "@aws-sdk/client-s3": "^3.1090.0",
     "@aws-sdk/client-secrets-manager": "^3.1069.0",
     "@aws-sdk/util-dynamodb": "^3.996.6",
     "aws-cdk-lib": "^2.257.0",
