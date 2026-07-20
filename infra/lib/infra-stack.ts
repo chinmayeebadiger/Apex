@@ -74,9 +74,6 @@ export class InfraStack extends cdk.Stack {
       entry: path.join(__dirname, '../lambda/ws-connect/index.ts'),
       timeout: cdk.Duration.seconds(10),
       memorySize: 128,
-      bundling: {
-        externalModules: ['@aws-sdk/client-apigatewaymanagementapi'],
-      },
     });
 
     const wsDisconnectLambda = new NodejsFunction(this, 'WebSocketDisconnectLambda', {
@@ -87,12 +84,26 @@ export class InfraStack extends cdk.Stack {
       memorySize: 128,
     });
 
+    const wsDefaultLambda = new NodejsFunction(this, 'WebSocketDefaultLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../lambda/ws-default/index.ts'),
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 128,
+      bundling: {
+        externalModules: ['@aws-sdk/client-apigatewaymanagementapi'],
+      },
+    });
+
     const webSocketApi = new apigatewayv2.WebSocketApi(this, 'PipelineWebSocketApi', {
       connectRouteOptions: {
         integration: new WebSocketLambdaIntegration('ConnectIntegration', wsConnectLambda),
       },
       disconnectRouteOptions: {
         integration: new WebSocketLambdaIntegration('DisconnectIntegration', wsDisconnectLambda),
+      },
+      defaultRouteOptions: {
+        integration: new WebSocketLambdaIntegration('DefaultIntegration', wsDefaultLambda),
       },
     });
 
@@ -104,13 +115,16 @@ export class InfraStack extends cdk.Stack {
 
     const webSocketManagementEndpoint = `https://${webSocketApi.apiId}.execute-api.${this.region}.amazonaws.com/${webSocketStage.stageName}`;
 
-    wsConnectLambda.addToRolePolicy(new iam.PolicyStatement({
+    const webSocketConnectionPolicy = new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       actions: ['execute-api:ManageConnections'],
       resources: [
         `arn:aws:execute-api:${this.region}:${this.account}:${webSocketApi.apiId}/${webSocketStage.stageName}/POST/@connections/*`,
       ],
-    }));
+    });
+
+    wsConnectLambda.addToRolePolicy(webSocketConnectionPolicy);
+    wsDefaultLambda.addToRolePolicy(webSocketConnectionPolicy);
 
     const generateLambda = new NodejsFunction(this, 'GenerateLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,

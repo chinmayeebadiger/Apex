@@ -62,6 +62,7 @@ export const usePipelineWebSocket = () => {
 
     socket.onopen = () => {
       setIsConnected(true);
+      socket.send(JSON.stringify({ type: 'register' }));
     };
 
     socket.onmessage = (event) => {
