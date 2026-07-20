@@ -98,9 +98,13 @@ cd frontend && npm run lint && npm run build
 
 | Doc | Purpose |
 |-----|---------|
+| **[docs/VERIFICATION.md](docs/VERIFICATION.md)** | **Start here** — step-by-step “is everything working?” |
+| [docs/LAYERS.md](docs/LAYERS.md) | Four architecture layers explained |
+| [docs/phases/README.md](docs/phases/README.md) | Phase 1–4 guides (what each week built) |
 | [context.md](context.md) | PRD |
-| [docs/architecture.md](docs/architecture.md) | Architecture + deploy path |
+| [docs/architecture.md](docs/architecture.md) | Diagrams + deploy path |
 | [docs/DEMO.md](docs/DEMO.md) | 90-second demo script |
-| [CODE_GUIDE.md](CODE_GUIDE.md) | Code walkthrough |
+| [CODE_GUIDE.md](CODE_GUIDE.md) | Code walkthrough with line numbers |
 | [progress.md](progress.md) | Implementation status |
 | [docs/phase-plans/phase-04-plan.md](docs/phase-plans/phase-04-plan.md) | Phase 4 plan |
+| [docs/phase-reviews/phase-01-review.md](docs/phase-reviews/phase-01-review.md) | Phase 4 review sign-off |

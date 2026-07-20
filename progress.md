@@ -29,6 +29,8 @@ generating → awaiting_approval → deploying → deployed | deploy_failed
 
 ## How to verify Phase 4 (deploy)
 
+**Full checklist:** [docs/VERIFICATION.md](docs/VERIFICATION.md) — local tests, deploy, UI, curl, DynamoDB, CloudFormation.
+
 ### Prerequisites
 
 - AWS CLI configured for `ap-south-1`
