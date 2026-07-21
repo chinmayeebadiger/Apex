@@ -14,11 +14,11 @@ const getSandboxFunctionName = () => {
   return functionName;
 };
 
-const invokeSandbox = async (code: string) => {
+const invokeSandbox = async (code: string, files?: Record<string, string>) => {
   const invokeResult = await lambdaClient.send(new InvokeCommand({
     FunctionName: getSandboxFunctionName(),
     InvocationType: 'RequestResponse',
-    Payload: JSON.stringify({ code }),
+    Payload: JSON.stringify({ code, files }),
   }));
 
   if (!invokeResult.Payload) {
@@ -49,7 +49,7 @@ export const handler = async (event: any) => {
   });
 
   const result = await generateCdkCode(anthropic, userMessage);
-  const sandboxResponse = await invokeSandbox(result.code);
+  const sandboxResponse = await invokeSandbox(result.code, result.files);
 
   return {
     statusCode: 200,

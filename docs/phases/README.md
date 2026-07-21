@@ -14,6 +14,7 @@ Apex was built in **four phases** aligned with the PRD ([context.md](../../conte
 | Doc | Purpose |
 |-----|---------|
 | [../VERIFICATION.md](../VERIFICATION.md) | **Start here** — verify everything works |
+| [../explanations/README.md](../explanations/README.md) | **Developer journal** — phase-by-phase implementation deep dives |
 | [../LAYERS.md](../LAYERS.md) | Four architecture layers explained |
 | [../architecture.md](../architecture.md) | Diagrams + deploy path |
 | [../../CODE_GUIDE.md](../../CODE_GUIDE.md) | Important code + line numbers |
@@ -24,4 +25,5 @@ Apex was built in **four phases** aligned with the PRD ([context.md](../../conte
 | Doc | Purpose |
 |-----|---------|
 | [../phase-plans/phase-04-plan.md](../phase-plans/phase-04-plan.md) | Phase 4 implementation plan |
+| [../phase-plans/production-deployment-plan.md](../phase-plans/production-deployment-plan.md) | Production go-live / ship plan (Days 27–28) |
 | [../phase-reviews/phase-01-review.md](../phase-reviews/phase-01-review.md) | Phase 4 review sign-off (filename legacy) |

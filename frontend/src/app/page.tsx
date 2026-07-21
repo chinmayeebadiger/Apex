@@ -17,7 +17,6 @@ import {
   ArrowRight,
   Cpu
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { ApprovalBar } from '../components/ApprovalBar';
 import { CodeHighlight } from '../components/CodeHighlight';
 import { CostEstimatePanel } from '../components/CostEstimatePanel';
@@ -378,13 +377,6 @@ export default function App() {
       }
       setFollowUpFromGenerationId(null);
       void loadHistory(conversationId);
-
-      // Play victory sound or confetti animation
-      confetti({
-        particleCount: 80,
-        spread: 60,
-        origin: { y: 0.8 }
-      });
 
     } catch (err: unknown) {
       console.error(err);

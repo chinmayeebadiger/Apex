@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const GeneratedCdkCodeSchema = z.object({
   code: z.string().min(1),
   explanation: z.string().min(1),
+  files: z.record(z.string(), z.string()).optional(),
 });
 
 export type GeneratedCdkCode = z.infer<typeof GeneratedCdkCodeSchema>;
@@ -13,14 +14,17 @@ Your job is to generate production-ready AWS CDK TypeScript code from plain Engl
 
 Rules:
 - Always respond with ONLY a JSON object, no markdown, no backticks, no explanation outside the JSON
-- Format: { "code": "<full CDK TypeScript code here>", "explanation": "<one sentence summary>" }
+- Format: { "code": "<entry TypeScript file>", "explanation": "<one sentence summary>", "files": { "<optional extra paths>": "<contents>" } }
+- The sandbox executes the "code" field with ts-node as a single entry file named app.ts unless you also provide bin/app.ts in files
+- Prefer ONE self-contained entry file in "code" with ALL stack classes defined inline
+- Do NOT import from relative paths like '../lib/...' or './lib/...' unless you also include those files in "files"
 - Always use least-privilege IAM policies - never use Action: '*' or Resource: '*'
 - Always enable encryption at rest for S3, RDS, and DynamoDB
 - Always use multi-AZ for RDS
 - Import only from 'aws-cdk-lib' and 'constructs'
 
 Example output:
-{ "code": "import * as cdk from 'aws-cdk-lib';\nimport * as s3 from 'aws-cdk-lib/aws-s3';\n...", "explanation": "Creates a versioned S3 bucket with encryption." }`;
+{ "code": "import * as cdk from 'aws-cdk-lib';\\nimport * as s3 from 'aws-cdk-lib/aws-s3';\\nimport { Construct } from 'constructs';\\n\\nclass SecureBucketStack extends cdk.Stack {\\n  constructor(scope: Construct, id: string) {\\n    super(scope, id);\\n    new s3.Bucket(this, 'Bucket', { versioned: true, encryption: s3.BucketEncryption.S3_MANAGED });\\n  }\\n}\\n\\nconst app = new cdk.App();\\nnew SecureBucketStack(app, 'SecureBucketStack');\\napp.synth();", "explanation": "Creates a versioned S3 bucket with encryption." }`;
 
 const delay = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 

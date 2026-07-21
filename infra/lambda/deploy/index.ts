@@ -108,6 +108,45 @@ const parseEvent = (event: unknown) => {
 const templateUrlFor = (bucketName: string, key: string, region: string) =>
   `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
 
+// `cdk synth` emits a `BootstrapVersion` parameter (an SSM
+// `AWS::SSM::Parameter::Value<String>` pointing at `/cdk-bootstrap/.../version`)
+// and a companion `CheckBootstrapVersion` rule. When CloudFormation deploys the
+// template under the scoped, S3-only DeploymentRole it tries to resolve that SSM
+// parameter and fails with AccessDenied. These constructs are only relevant to
+// `cdk deploy`, so strip them before deploying raw CloudFormation.
+export const stripCdkBootstrap = (template: unknown): unknown => {
+  if (typeof template !== 'object' || template === null) {
+    return template;
+  }
+
+  const cloned = JSON.parse(JSON.stringify(template)) as Record<string, unknown>;
+
+  const parameters = cloned.Parameters;
+  if (parameters && typeof parameters === 'object') {
+    const params = parameters as Record<string, { Default?: unknown }>;
+    for (const [key, value] of Object.entries(params)) {
+      const defaultValue = value?.Default;
+      if (typeof defaultValue === 'string' && defaultValue.startsWith('/cdk-bootstrap/')) {
+        delete params[key];
+      }
+    }
+    if (Object.keys(params).length === 0) {
+      delete cloned.Parameters;
+    }
+  }
+
+  const rules = cloned.Rules;
+  if (rules && typeof rules === 'object') {
+    const ruleMap = rules as Record<string, unknown>;
+    delete ruleMap.CheckBootstrapVersion;
+    if (Object.keys(ruleMap).length === 0) {
+      delete cloned.Rules;
+    }
+  }
+
+  return cloned;
+};
+
 const stackOutputs = (stack: Stack | undefined): Record<string, string> => {
   const outputs: Record<string, string> = {};
   for (const output of stack?.Outputs ?? []) {
@@ -349,10 +388,12 @@ export const createDeployHandler = (dependencies: DeployDependencies = {}) => {
         stackName,
       });
 
+      const deployTemplate = stripCdkBootstrap(item.cloudFormationTemplate);
+
       await s3Client.send(new PutObjectCommand({
         Bucket: bucketName,
         Key: templateS3Key,
-        Body: JSON.stringify(item.cloudFormationTemplate),
+        Body: JSON.stringify(deployTemplate),
         ContentType: 'application/json',
       }));
 
@@ -537,6 +578,12 @@ export const createDeployHandler = (dependencies: DeployDependencies = {}) => {
       return { status: 'deploy_failed' };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown deploy error';
+      console.error('Deploy failed', {
+        conversationId: item.conversationId,
+        generationId: item.generationId,
+        stackName,
+        message,
+      });
       await failGeneration(item, invocation.connectionId, message);
       return { status: 'deploy_failed', error: message };
     }

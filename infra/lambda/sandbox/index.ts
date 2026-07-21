@@ -2,9 +2,14 @@ import { execFileSync, ExecFileSyncOptionsWithStringEncoding } from 'child_proce
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import {
+  detectMissingRelativeImports,
+  writeWorkspaceFiles,
+} from './workspace';
 
 interface SandboxEvent {
   code: string;
+  files?: Record<string, string>;
 }
 
 interface SandboxSuccess {
@@ -23,16 +28,17 @@ type SandboxResponse = SandboxSuccess | SandboxFailure;
 const EXEC_TIMEOUT_MS = 50_000;
 const DEFAULT_LAYER_NODE_MODULES = '/opt/nodejs/node_modules';
 const layerNodeModules = process.env.SANDBOX_NODE_MODULES_PATH ?? DEFAULT_LAYER_NODE_MODULES;
-const layerBin = path.join(layerNodeModules, '.bin');
-const cdkCli = path.join(layerBin, 'cdk');
-const tsNodeCli = path.join(layerBin, 'ts-node');
+// Invoke real package entry files (not .bin symlinks). Lambda layer packaging can
+// dereference or flatten .bin links so require("../lib") inside cdk/ts-node breaks;
+// node <pkg>/bin/... keeps the script realpath under the package tree.
+const cdkBin = path.join(layerNodeModules, 'aws-cdk', 'bin', 'cdk');
+const tsNodeBin = path.join(layerNodeModules, 'ts-node', 'dist', 'bin.js');
 
 const EXEC_ENV: NodeJS.ProcessEnv = {
   ...process.env,
   CDK_DEFAULT_ACCOUNT: '000000000000',
   CDK_DEFAULT_REGION: 'ap-south-1',
   NODE_PATH: [layerNodeModules, process.env.NODE_PATH].filter(Boolean).join(path.delimiter),
-  PATH: [layerBin, process.env.PATH].filter(Boolean).join(path.delimiter),
 };
 
 const EXEC_OPTIONS: ExecFileSyncOptionsWithStringEncoding = {
@@ -51,33 +57,6 @@ const getExecStderr = (error: unknown): string => {
   }
 
   return '';
-};
-
-const writeWorkspaceFiles = (tmpDir: string, code: string): void => {
-  fs.writeFileSync(path.join(tmpDir, 'app.ts'), code);
-  fs.symlinkSync(layerNodeModules, path.join(tmpDir, 'node_modules'), 'dir');
-
-  fs.writeFileSync(
-    path.join(tmpDir, 'package.json'),
-    JSON.stringify({ private: true }, null, 2),
-  );
-
-  fs.writeFileSync(
-    path.join(tmpDir, 'tsconfig.json'),
-    JSON.stringify(
-      {
-        compilerOptions: {
-          target: 'ES2020',
-          module: 'commonjs',
-          strict: true,
-          esModuleInterop: true,
-          skipLibCheck: true,
-        },
-      },
-      null,
-      2,
-    ),
-  );
 };
 
 const readFirstTemplate = (cdkOutDir: string): unknown => {
@@ -102,15 +81,30 @@ export const handler = async (event: SandboxEvent): Promise<SandboxResponse> => 
     };
   }
 
+  const missingImports = detectMissingRelativeImports(event.code, event.files);
+  if (missingImports.length > 0) {
+    return {
+      success: false,
+      error: `Generated code imports missing files: ${missingImports.join(', ')}. Regenerate as a single self-contained app.ts or include the files map.`,
+      stderr: '',
+    };
+  }
+
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cdk-sandbox-'));
 
   try {
-    writeWorkspaceFiles(tmpDir, event.code);
+    const entryRelative = writeWorkspaceFiles(
+      tmpDir,
+      event.code,
+      layerNodeModules,
+      event.files,
+    );
 
-    execFileSync(cdkCli, [
+    execFileSync('node', [
+      cdkBin,
       'synth',
       '--app',
-      `${tsNodeCli} app.ts`,
+      `node ${tsNodeBin} ${entryRelative}`,
       '--output',
       './cdk.out',
       '--quiet',

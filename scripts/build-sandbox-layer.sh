@@ -24,3 +24,9 @@ EOF
 
 cd "$LAYER_DIR"
 npm install --omit=dev
+
+# Sandbox Lambda invokes aws-cdk and ts-node via real package entry paths
+# (aws-cdk/bin/cdk, ts-node/dist/bin.js), not node_modules/.bin. Drop .bin so a
+# future regression cannot silently reintroduce symlink-dereferencing failures
+# where require("../lib") resolves outside the package tree.
+rm -rf node_modules/.bin

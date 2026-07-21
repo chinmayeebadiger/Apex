@@ -122,11 +122,12 @@ const buildFollowUpPrompt = async (
 const invokeSandbox = async (
   lambdaClient: LambdaClient,
   code: string,
+  files?: Record<string, string>,
 ) => {
   const invokeResult = await lambdaClient.send(new InvokeCommand({
     FunctionName: getSandboxFunctionName(),
     InvocationType: 'RequestResponse',
-    Payload: Buffer.from(JSON.stringify({ code })),
+    Payload: Buffer.from(JSON.stringify({ code, files })),
   }));
 
   if (invokeResult.FunctionError) {
@@ -210,6 +211,8 @@ export const createOrchestrationHandler = (dependencies: OrchestrationDependenci
 
       const anthropic = anthropicFactory(await getApiKey());
 
+      let generatedFiles: Record<string, string> | undefined;
+
       await runStep(
         emitStep,
         request.connectionId,
@@ -219,6 +222,7 @@ export const createOrchestrationHandler = (dependencies: OrchestrationDependenci
           const generated = GeneratedCdkCodeSchema.parse(await generate(anthropic, prompt));
           initialItem.generatedCdkCode = generated.code;
           initialItem.generatedExplanation = generated.explanation;
+          generatedFiles = generated.files;
           return generated.explanation;
         },
       );
@@ -226,6 +230,7 @@ export const createOrchestrationHandler = (dependencies: OrchestrationDependenci
       const generated = {
         code: initialItem.generatedCdkCode!,
         explanation: initialItem.generatedExplanation!,
+        files: generatedFiles,
       };
 
       const sandboxResponse = await (async () => {
@@ -237,7 +242,7 @@ export const createOrchestrationHandler = (dependencies: OrchestrationDependenci
           { ...stepBase, step: 'validating' },
           'Running sandbox cdk synth',
           async () => {
-            sandboxResult = await invokeSandbox(lambdaClient, generated.code);
+            sandboxResult = await invokeSandbox(lambdaClient, generated.code, generated.files);
             if (!sandboxResult.success) {
               throw new Error(`Sandbox synthesis failed: ${sandboxResult.error}${sandboxResult.stderr ? `\n${sandboxResult.stderr}` : ''}`);
             }
