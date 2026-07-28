@@ -118,6 +118,9 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [isApprovalSubmitting, setIsApprovalSubmitting] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const rightColumnScrollRef = useRef<HTMLDivElement>(null);
+  const previewPanelsRef = useRef<HTMLDivElement>(null);
+  const lastAutoScrollGenerationId = useRef<string | null>(null);
   const reconciledTerminalRef = useRef<string | null>(null);
   const historyLoadedRef = useRef(false);
 
@@ -215,6 +218,7 @@ export default function App() {
     resetSteps();
     resetDeploy();
     reconciledTerminalRef.current = null;
+    lastAutoScrollGenerationId.current = null;
     const nextConversationId = resetConversationId();
     setConversationId(nextConversationId);
     setHistory([]);
@@ -308,6 +312,7 @@ export default function App() {
     resetSteps();
     resetDeploy();
     reconciledTerminalRef.current = null;
+    lastAutoScrollGenerationId.current = null;
     
     // Set temp state to show the user prompt in chat area immediately
     setTempGeneration({
@@ -408,6 +413,51 @@ export default function App() {
     void loadHistory(activeItem.conversationId);
   }, [activeItem?.conversationId, activeItem?.generationId, deployStatus, loadHistory]);
 
+  useEffect(() => {
+    if (isGenerating) {
+      return;
+    }
+
+    const generationId = activeItem?.generationId;
+    if (!generationId) {
+      return;
+    }
+
+    if (lastAutoScrollGenerationId.current === generationId) {
+      return;
+    }
+
+    const diff = activeItem?.diff;
+    const costEstimate = activeItem?.costEstimate;
+    const securityFlags = activeItem?.securityFlags;
+    if (!diff && !costEstimate && !securityFlags) {
+      return;
+    }
+
+    lastAutoScrollGenerationId.current = generationId;
+    const frame = requestAnimationFrame(() => {
+      const container = rightColumnScrollRef.current;
+      const target = previewPanelsRef.current;
+      if (container && target) {
+        const scrollTop =
+          container.scrollTop +
+          (target.getBoundingClientRect().top - container.getBoundingClientRect().top);
+        container.scrollTo({ top: scrollTop, behavior: 'smooth' });
+        return;
+      }
+
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [
+    isGenerating,
+    activeItem?.generationId,
+    activeItem?.diff,
+    activeItem?.costEstimate,
+    activeItem?.securityFlags,
+  ]);
+
   const handleRerun = () => {
     if (!activeItem?.prompt || isGenerating) {
       return;
@@ -435,6 +485,7 @@ export default function App() {
     : activeItem?.deploymentError;
   const promptTimestamp = activeItem?.timestamp ?? tempGeneration?.timestamp ?? 0;
   const hasContent = !!(activeItem || tempGeneration);
+  const hasPreviewPanels = !!(currentDiff || currentCostEstimate || currentSecurityFlags || isDeployStatus(currentStatus));
 
   return (
     <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50/50 text-slate-800 font-sans overflow-hidden">
@@ -704,38 +755,125 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Right Column: Code + preview panels */}
-              <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-100">
-                {(currentDiff || currentCostEstimate || currentSecurityFlags || isDeployStatus(currentStatus)) && !isGenerating && (
-                  <div className="border-b border-slate-200 bg-slate-50 p-4 space-y-3 overflow-y-auto max-h-[48%] shrink-0">
-                    {currentStatus && (
-                      <ApprovalBar
-                        status={currentStatus}
-                        onApprove={() => submitApproval('approve')}
-                        onCancel={() => submitApproval('cancel')}
-                        onRetryDeploy={() => submitApproval('approve')}
-                        isSubmitting={isApprovalSubmitting}
-                      />
-                    )}
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-3">
-                      <DiffPanel diff={currentDiff} />
-                      <CostEstimatePanel costEstimate={currentCostEstimate} />
-                      <SecurityFlagsPanel flags={currentSecurityFlags} />
+              {/* Right Column: Code first, then full-width preview panels (scrollable) */}
+              <div
+                ref={rightColumnScrollRef}
+                className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden bg-slate-100"
+              >
+                {/* Generated code */}
+                <div className="w-full shrink-0 bg-slate-900 flex flex-col min-h-[min(50vh,480px)]">
+                  <div className="h-11 border-b border-slate-800/80 bg-slate-950 flex items-center justify-between px-4 select-none sticky top-0 z-10">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-4 w-4 bg-teal-500/10 rounded flex items-center justify-center border border-teal-500/20">
+                        <Code2 className="h-2.5 w-2.5 text-teal-400" />
+                      </div>
+                      <span className="font-mono text-xs font-semibold text-slate-300">
+                        generated-stack.ts
+                      </span>
+                      <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+                        TypeScript
+                      </span>
                     </div>
-                    {isDeployStatus(currentStatus) && (
-                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-                        <DeployLogPanel events={deployEvents} status={currentStatus} />
-                        <DeploymentOutputsPanel
+
+                    {currentCode && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleCopyCode}
+                          className={cn(
+                            "px-2.5 py-1 rounded text-xs font-medium transition-all flex items-center gap-1.5",
+                            copied
+                              ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-300"
+                              : "bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300"
+                          )}
+                          title="Copy to clipboard"
+                        >
+                          {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                          {copied ? 'Copied!' : 'Copy'}
+                        </button>
+                        <button
+                          onClick={handleDownloadCode}
+                          className="px-2.5 py-1 rounded bg-slate-850 hover:bg-slate-800 border border-slate-700/60 text-slate-300 hover:text-white text-xs font-medium transition-all flex items-center gap-1.5"
+                          title="Download file"
+                        >
+                          <Download className="h-3 w-3" />
+                          Download
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="relative bg-slate-950 font-mono w-full">
+                    {isGenerating ? (
+                      <div className="flex flex-col items-center justify-center text-slate-400 bg-slate-950/70 backdrop-blur-[1px] space-y-3 z-10 select-none min-h-[min(40vh,360px)]">
+                        <div className="relative flex items-center justify-center">
+                          <div className="w-10 h-10 border-2 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+                          <Sparkles className="w-4 h-4 text-teal-400 absolute" />
+                        </div>
+                        <p className="text-xs font-medium text-slate-300">Generating TypeScript CDK constructs...</p>
+                      </div>
+                    ) : currentCode ? (
+                      <CodeHighlight code={currentCode} />
+                    ) : (
+                      <div className="min-h-[min(40vh,360px)] flex items-center justify-center text-slate-500 text-xs italic select-none">
+                        Waiting for generation to finish...
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Preview panels — full width, stacked vertically */}
+                {hasPreviewPanels && !isGenerating && (
+                  <div
+                    ref={previewPanelsRef}
+                    className="w-full flex flex-col gap-4 p-4 bg-slate-50 border-t border-slate-200"
+                  >
+                    {currentStatus && (
+                      <div className="w-full">
+                        <ApprovalBar
                           status={currentStatus}
-                          stackName={currentStackName}
-                          stackId={currentStackId}
-                          outputs={currentDeploymentOutputs}
-                          deploymentError={currentDeploymentError}
+                          onApprove={() => submitApproval('approve')}
+                          onCancel={() => submitApproval('cancel')}
+                          onRetryDeploy={() => submitApproval('approve')}
+                          isSubmitting={isApprovalSubmitting}
                         />
                       </div>
                     )}
+
+                    {(currentDiff || currentCostEstimate || currentSecurityFlags) && (
+                      <>
+                        <div className="w-full">
+                          <DiffPanel diff={currentDiff} />
+                        </div>
+                        {currentCostEstimate && (
+                          <div className="w-full">
+                            <CostEstimatePanel costEstimate={currentCostEstimate} />
+                          </div>
+                        )}
+                        <div className="w-full">
+                          <SecurityFlagsPanel flags={currentSecurityFlags} />
+                        </div>
+                      </>
+                    )}
+
+                    {isDeployStatus(currentStatus) && (
+                      <>
+                        <div className="w-full">
+                          <DeployLogPanel events={deployEvents} status={currentStatus} />
+                        </div>
+                        <div className="w-full">
+                          <DeploymentOutputsPanel
+                            status={currentStatus}
+                            stackName={currentStackName}
+                            stackId={currentStackId}
+                            outputs={currentDeploymentOutputs}
+                            deploymentError={currentDeploymentError}
+                          />
+                        </div>
+                      </>
+                    )}
+
                     {activeItem && activeItem.status !== 'generating' && (
-                      <div className="flex flex-wrap items-center gap-3">
+                      <div className="flex flex-wrap items-center gap-3 w-full pb-2">
                         <button
                           type="button"
                           onClick={() => {
@@ -758,74 +896,6 @@ export default function App() {
                     )}
                   </div>
                 )}
-
-                <div className="flex-1 bg-slate-900 flex flex-col min-h-0 overflow-hidden">
-                
-                {/* Editor Header Tab */}
-                <div className="h-11 border-b border-slate-800/80 bg-slate-950 flex items-center justify-between px-4 select-none">
-                  
-                  {/* File name info */}
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-4 w-4 bg-teal-500/10 rounded flex items-center justify-center border border-teal-500/20">
-                      <Code2 className="h-2.5 w-2.5 text-teal-400" />
-                    </div>
-                    <span className="font-mono text-xs font-semibold text-slate-300">
-                      generated-stack.ts
-                    </span>
-                    <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
-                      TypeScript
-                    </span>
-                  </div>
-
-                  {/* Actions */}
-                  {currentCode && (
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={handleCopyCode}
-                        className={cn(
-                          "px-2.5 py-1 rounded text-xs font-medium transition-all flex items-center gap-1.5",
-                          copied 
-                            ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-300"
-                            : "bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300"
-                        )}
-                        title="Copy to clipboard"
-                      >
-                        {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                        {copied ? 'Copied!' : 'Copy'}
-                      </button>
-                      <button
-                        onClick={handleDownloadCode}
-                        className="px-2.5 py-1 rounded bg-slate-850 hover:bg-slate-800 border border-slate-700/60 text-slate-300 hover:text-white text-xs font-medium transition-all flex items-center gap-1.5"
-                        title="Download file"
-                      >
-                        <Download className="h-3 w-3" />
-                        Download
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Editor Body */}
-                <div className="flex-1 overflow-auto bg-slate-950 font-mono relative scrollbar-editor">
-                  {isGenerating ? (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-950/70 backdrop-blur-[1px] space-y-3 z-10 select-none">
-                      <div className="relative flex items-center justify-center">
-                        <div className="w-10 h-10 border-2 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
-                        <Sparkles className="w-4 h-4 text-teal-400 absolute" />
-                      </div>
-                      <p className="text-xs font-medium text-slate-300">Generating TypeScript CDK constructs...</p>
-                    </div>
-                  ) : null}
-
-                  {currentCode ? (
-                    <CodeHighlight code={currentCode} />
-                  ) : (
-                    <div className="h-full flex items-center justify-center text-slate-500 text-xs italic select-none">
-                      Waiting for generation to finish...
-                    </div>
-                  )}
-                </div>
-                </div>
               </div>
 
             </div>

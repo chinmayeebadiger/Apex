@@ -21,7 +21,7 @@ export function SecurityFlagsPanel({ flags }: SecurityFlagsPanelProps) {
         <ShieldAlert className="h-4 w-4 text-amber-600" />
         <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-800">Security Scan</h3>
       </div>
-      <ul className="space-y-2 max-h-40 overflow-y-auto">
+      <ul className="space-y-2">
         {flags.map((flag, index) => (
           <li key={`${flag.logicalId}-${index}`} className="text-xs rounded-lg bg-white/80 border border-amber-100 px-3 py-2">
             <div className="font-semibold text-slate-800">

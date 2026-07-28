@@ -17,7 +17,7 @@ export function CostEstimatePanel({ costEstimate }: CostEstimatePanelProps) {
           ${costEstimate.totalMonthlyCostUSD.toFixed(2)}/mo
         </span>
       </div>
-      <ul className="space-y-2 max-h-40 overflow-y-auto">
+      <ul className="space-y-2">
         {costEstimate.resourceEstimates.map((estimate) => (
           <li key={estimate.logicalId} className="text-xs border-b border-slate-100 pb-2 last:border-0">
             <div className="flex justify-between font-medium text-slate-700">

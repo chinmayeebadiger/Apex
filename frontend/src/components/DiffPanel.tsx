@@ -24,7 +24,7 @@ export function DiffPanel({ diff }: DiffPanelProps) {
     <section aria-label="Infrastructure diff" className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
       <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Infrastructure Diff</h3>
       <p className="text-sm font-medium text-slate-800">{diff.summary}</p>
-      <div className="space-y-2 max-h-48 overflow-y-auto">
+      <div className="space-y-2">
         {diff.resources.map((resource) => (
           <article
             key={resource.logicalId}
