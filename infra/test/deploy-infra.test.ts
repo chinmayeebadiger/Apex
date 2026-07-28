@@ -51,7 +51,7 @@ describe('deploy infrastructure', () => {
     });
   });
 
-  test('creates DeploymentRole assumed by CloudFormation with S3 allowlist', () => {
+  test('creates DeploymentRole assumed by CloudFormation with S3 and KMS allowlist', () => {
     const template = createTemplate();
 
     template.hasResourceProperties('AWS::IAM::Role', {
@@ -73,6 +73,15 @@ describe('deploy infrastructure', () => {
               's3:CreateBucket',
               's3:DeleteBucket',
               's3:PutBucket*',
+            ]),
+            Effect: 'Allow',
+            Resource: '*',
+          }),
+          Match.objectLike({
+            Action: Match.arrayWith([
+              'kms:CreateKey',
+              'kms:CreateAlias',
+              'kms:PutKeyPolicy',
             ]),
             Effect: 'Allow',
             Resource: '*',

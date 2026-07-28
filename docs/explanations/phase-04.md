@@ -252,11 +252,27 @@ ssm:GetParameters on resource: .../parameter/cdk-bootstrap/hnb659fds/version
 
 **Fix:** CloudWatch logs; check `deploymentError` in DynamoDB. Added `console.error` in deploy catch for visibility.
 
-### `deploy_failed` on non-S3 templates
+### `deploy_failed` on KMS bucket prompts — `CreateKey AccessDenied` (fixed July 2026)
 
-**Cause:** DeploymentRole is S3-first by design.
+**Symptom:** Deploy log shows `CREATE_FAILED ... AWS::KMS::Key ... Access denied for operation 'CreateKey'`.
 
-**Fix:** Use S3 bucket prompts for demo; expand role deliberately for other resource types.
+**Root cause:** The built-in "Secure S3 Bucket with KMS" example generates `AWS::KMS::Key`, but `DeploymentRole` initially granted only S3 actions.
+
+**Fix:** Added KMS actions to `DeploymentRole` in `infra/lib/infra-stack.ts` and `SUPPORTED_RESOURCE_TYPES` in `infra/lambda/shared/deployability.ts`. Redeploy `InfraStack`.
+
+### `deploy_failed` on unsupported resource types (Lambda, DynamoDB, etc.)
+
+**Symptom:** User approves a stack with resources outside the allowlist.
+
+**Root cause:** LLM can generate any AWS resource; `DeploymentRole` is intentionally narrow.
+
+**Fix:** Pre-deploy guardrail in `deploy/index.ts` calls `findUnsupportedResourceTypes()` before `CreateChangeSet`. Returns a friendly message like *"Deploy not attempted: AWS::Lambda::Function is not supported…"* instead of a CloudFormation rollback. To support a new resource type: add IAM actions to `DeploymentRole` **and** add the CFN type to `deployability.ts`.
+
+### `deploy_failed` on non-S3 templates (legacy note)
+
+**Cause:** Before the deployability guardrail, unsupported types failed mid-CF with raw IAM errors.
+
+**Fix:** Guardrail now catches these pre-deploy; expand allowlist deliberately if adding services.
 
 ### WebSocket shows no deploy log
 

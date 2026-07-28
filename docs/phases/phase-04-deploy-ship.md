@@ -66,7 +66,8 @@ generating → awaiting_approval → deploying → deployed
 | Service role separation | CFN assumes `DeploymentRole`, not DeployLambda’s role |
 | `iam:PassRole` | Scoped to `DeploymentRole` ARN only |
 | Stack name prefix | `apex-gen-*` |
-| Resource allowlist | **S3-first** — templates with IAM/other resources may fail deploy by design |
+| Resource allowlist | **S3 + KMS** (see `infra/lambda/shared/deployability.ts`); other types blocked pre-deploy with a clear error |
+| Pre-deploy guardrail | `findUnsupportedResourceTypes()` in DeployLambda — fails fast before CloudFormation, no raw IAM stack traces for unsupported types |
 | Sandbox | Still runs before approval — invalid CDK caught early |
 
 **Review note (IMPORTANT-2):** DeploymentRole S3 policy uses `Resource: '*'` for bucket-level actions — acceptable for demo; tighten to `apex-*` prefix for production hardening.

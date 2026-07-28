@@ -8,7 +8,7 @@ import {
 import { GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { createDeployHandler } from '../lambda/deploy/index';
+import { createDeployHandler, stripCdkBootstrap } from '../lambda/deploy/index';
 import type { DeployEventMessage } from '../lambda/shared/pipelineStream';
 
 describe('deploy handler', () => {
@@ -37,13 +37,18 @@ describe('deploy handler', () => {
       Resources: {
         Bucket: { Type: 'AWS::S3::Bucket' },
       },
-    },
-    status: 'deploying',
+    } as Record<string, unknown>,
+    status: 'deploying' as const,
     createdAt: '2026-07-20T00:00:00.000Z',
     updatedAt: '2026-07-20T00:00:00.000Z',
   };
 
-  const createDynamo = (item = baseItem) => {
+  type TestGenerationItem = Omit<typeof baseItem, 'status' | 'cloudFormationTemplate'> & {
+    status: string;
+    cloudFormationTemplate: Record<string, unknown>;
+  };
+
+  const createDynamo = (item: TestGenerationItem = baseItem) => {
     const writes: Record<string, unknown>[] = [];
     let current = { ...item };
 
@@ -334,5 +339,123 @@ describe('deploy handler', () => {
     });
 
     expect(result).toEqual(expect.objectContaining({ skipped: true }));
+  });
+
+  test('stripCdkBootstrap removes CDK bootstrap SSM parameter and rule', () => {
+    const template = {
+      Parameters: {
+        BootstrapVersion: {
+          Type: 'AWS::SSM::Parameter::Value<String>',
+          Default: '/cdk-bootstrap/hnb659fds/version',
+        },
+      },
+      Rules: {
+        CheckBootstrapVersion: {
+          Assertions: [{ Assert: { 'Fn::Not': [{ 'Fn::Contains': ['1', '2'] }] } }],
+        },
+      },
+      Resources: {
+        Bucket: { Type: 'AWS::S3::Bucket' },
+      },
+    };
+
+    const stripped = stripCdkBootstrap(template) as Record<string, unknown>;
+
+    expect(stripped.Parameters).toBeUndefined();
+    expect(stripped.Rules).toBeUndefined();
+    expect(stripped.Resources).toEqual(template.Resources);
+  });
+
+  test('blocks unsupported resource types before CloudFormation change set', async () => {
+    const { client: dynamoDbClient, writes } = createDynamo({
+      ...baseItem,
+      cloudFormationTemplate: {
+        Resources: {
+          Function: { Type: 'AWS::Lambda::Function' },
+        },
+      },
+    });
+    const emitted: DeployEventMessage[] = [];
+
+    const cloudFormationClient = { send: jest.fn() };
+    const s3Client = { send: jest.fn() };
+
+    const handler = createDeployHandler({
+      dynamoDbClient: dynamoDbClient as never,
+      cloudFormationClient: cloudFormationClient as never,
+      s3Client: s3Client as never,
+      emitDeployEvent: async (_connectionId, message) => {
+        emitted.push(message);
+      },
+      now: () => new Date('2026-07-22T00:00:00.000Z'),
+    });
+
+    const result = await handler({
+      conversationId: 'conversation-1',
+      generationId: 'generationabcdef12',
+    });
+
+    expect(result).toEqual(expect.objectContaining({
+      status: 'deploy_failed',
+      reason: expect.stringContaining('AWS::Lambda::Function'),
+    }));
+    expect(cloudFormationClient.send).not.toHaveBeenCalled();
+    expect(s3Client.send).not.toHaveBeenCalled();
+    expect(writes[writes.length - 1]).toEqual(expect.objectContaining({
+      status: 'deploy_failed',
+      deploymentError: expect.stringContaining('Deploy not attempted'),
+    }));
+    expect(emitted.some((event) => event.phase === 'failed')).toBe(true);
+  });
+
+  test('allows KMS and S3 resources through deployability guardrail', async () => {
+    const { client: dynamoDbClient } = createDynamo({
+      ...baseItem,
+      cloudFormationTemplate: {
+        Resources: {
+          BucketKmsKey: { Type: 'AWS::KMS::Key' },
+          Bucket: { Type: 'AWS::S3::Bucket' },
+          CDKMetadata: { Type: 'AWS::CDK::Metadata' },
+        },
+      },
+    });
+
+    const cloudFormationClient = {
+      send: jest.fn(async (command: unknown) => {
+        if (command instanceof DescribeStacksCommand) {
+          throw new Error('Stack with id apex-gen-generati does not exist');
+        }
+        if (command instanceof CreateChangeSetCommand) {
+          return {};
+        }
+        if (command instanceof DescribeChangeSetCommand) {
+          return { Status: 'FAILED', StatusReason: 'did not contain changes' };
+        }
+        return {};
+      }),
+    };
+
+    const s3Client = {
+      send: jest.fn(async () => ({})),
+    };
+
+    const handler = createDeployHandler({
+      dynamoDbClient: dynamoDbClient as never,
+      cloudFormationClient: cloudFormationClient as never,
+      s3Client: s3Client as never,
+      emitDeployEvent: async () => undefined,
+      now: () => new Date('2026-07-22T00:00:00.000Z'),
+      sleep: async () => undefined,
+      pollIntervalMs: 1,
+      maxPollMs: 1000,
+    });
+
+    await handler({
+      conversationId: 'conversation-1',
+      generationId: 'generationabcdef12',
+    });
+
+    expect(s3Client.send).toHaveBeenCalledWith(expect.any(PutObjectCommand));
+    expect(cloudFormationClient.send).toHaveBeenCalledWith(expect.any(CreateChangeSetCommand));
   });
 });

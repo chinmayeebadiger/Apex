@@ -13,6 +13,10 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { z } from 'zod';
 import {
+  buildDeployabilityErrorMessage,
+  findUnsupportedResourceTypes,
+} from '../shared/deployability';
+import {
   buildStackName,
   getGeneration,
   putGeneration,
@@ -389,6 +393,18 @@ export const createDeployHandler = (dependencies: DeployDependencies = {}) => {
       });
 
       const deployTemplate = stripCdkBootstrap(item.cloudFormationTemplate);
+
+      const unsupportedTypes = findUnsupportedResourceTypes(deployTemplate);
+      if (unsupportedTypes.length > 0) {
+        const message = buildDeployabilityErrorMessage(unsupportedTypes);
+        console.error('Deploy blocked by deployability guardrail', {
+          conversationId: item.conversationId,
+          generationId: item.generationId,
+          unsupportedTypes,
+        });
+        await failGeneration(item, invocation.connectionId, message);
+        return { status: 'deploy_failed', reason: message };
+      }
 
       await s3Client.send(new PutObjectCommand({
         Bucket: bucketName,

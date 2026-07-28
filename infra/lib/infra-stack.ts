@@ -45,7 +45,7 @@ export class InfraStack extends cdk.Stack {
 
     const deploymentRole = new iam.Role(this, 'DeploymentRole', {
       assumedBy: new iam.ServicePrincipal('cloudformation.amazonaws.com'),
-      description: 'Least-privilege role assumed by CloudFormation for Apex-generated stacks (S3-allowlisted)',
+      description: 'Least-privilege role for Apex-generated stacks (S3 + KMS for encrypted buckets). Resource allowlist: infra/lambda/shared/deployability.ts',
     });
 
     deploymentRole.addToPolicy(new iam.PolicyStatement({
@@ -64,6 +64,24 @@ export class InfraStack extends cdk.Stack {
         's3:PutEncryptionConfiguration',
         's3:PutLifecycleConfiguration',
         's3:PutObject',
+      ],
+      resources: ['*'],
+    }));
+
+    deploymentRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'kms:CreateAlias',
+        'kms:CreateKey',
+        'kms:DeleteAlias',
+        'kms:DescribeKey',
+        'kms:DisableKey',
+        'kms:EnableKey',
+        'kms:EnableKeyRotation',
+        'kms:PutKeyPolicy',
+        'kms:ScheduleKeyDeletion',
+        'kms:TagResource',
+        'kms:UpdateAlias',
       ],
       resources: ['*'],
     }));
