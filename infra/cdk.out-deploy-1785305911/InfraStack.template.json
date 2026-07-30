@@ -1,0 +1,2813 @@
+{
+ "Resources": {
+  "AnthropicApiKeySecret77C8E53B": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "GenerateSecretString": {},
+    "Name": "anthropic-api-key"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/AnthropicApiKeySecret/Resource"
+   }
+  },
+  "GenerationsTable592AAEF3": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "conversationId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "generationId",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "conversationId",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "generationId",
+      "KeyType": "RANGE"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/GenerationsTable/Resource"
+   }
+  },
+  "TemplatesBucketB07CED20": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+       }
+      }
+     ]
+    },
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    },
+    "Tags": [
+     {
+      "Key": "aws-cdk:auto-delete-objects",
+      "Value": "true"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/TemplatesBucket/Resource"
+   }
+  },
+  "TemplatesBucketPolicyC9ACD904": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "TemplatesBucketB07CED20"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "s3:*",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "TemplatesBucketB07CED20",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "TemplatesBucketB07CED20",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:PutBucketPolicy"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "TemplatesBucketB07CED20",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "TemplatesBucketB07CED20",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "s3:GetObject",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "cloudformation.amazonaws.com"
+       },
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::GetAtt": [
+            "TemplatesBucketB07CED20",
+            "Arn"
+           ]
+          },
+          "/templates/*"
+         ]
+        ]
+       },
+       "Sid": "AllowCloudFormationReadTemplates"
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/TemplatesBucket/Policy/Resource"
+   }
+  },
+  "TemplatesBucketAutoDeleteObjectsCustomResource2F94A2B6": {
+   "Type": "Custom::S3AutoDeleteObjects",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+      "Arn"
+     ]
+    },
+    "BucketName": {
+     "Ref": "TemplatesBucketB07CED20"
+    }
+   },
+   "DependsOn": [
+    "TemplatesBucketPolicyC9ACD904"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/TemplatesBucket/AutoDeleteObjectsCustomResource/Default"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-437040615496-ap-south-1",
+     "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Lambda function for auto-deleting objects in ",
+       {
+        "Ref": "TemplatesBucketB07CED20"
+       },
+       " S3 bucket."
+      ]
+     ]
+    }
+   },
+   "DependsOn": [
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+    "aws:asset:property": "Code"
+   }
+  },
+  "DeploymentRoleC7BBCF2C": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "cloudformation.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Description": "Least-privilege role for Apex-generated stacks (S3 + KMS for encrypted buckets). Resource allowlist: infra/lambda/shared/deployability.ts"
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DeploymentRole/Resource"
+   }
+  },
+  "DeploymentRoleDefaultPolicyB30A6D11": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "kms:CreateAlias",
+        "kms:CreateKey",
+        "kms:DeleteAlias",
+        "kms:DescribeKey",
+        "kms:DisableKey",
+        "kms:EnableKey",
+        "kms:EnableKeyRotation",
+        "kms:PutKeyPolicy",
+        "kms:ScheduleKeyDeletion",
+        "kms:TagResource",
+        "kms:UpdateAlias",
+        "s3:CreateBucket",
+        "s3:DeleteBucket",
+        "s3:DeleteBucketPolicy",
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion",
+        "s3:GetBucket*",
+        "s3:GetEncryptionConfiguration",
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:PutBucket*",
+        "s3:PutEncryptionConfiguration",
+        "s3:PutLifecycleConfiguration",
+        "s3:PutObject"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "DeploymentRoleDefaultPolicyB30A6D11",
+    "Roles": [
+     {
+      "Ref": "DeploymentRoleC7BBCF2C"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DeploymentRole/DefaultPolicy/Resource"
+   }
+  },
+  "WebSocketConnectLambdaServiceRole52FE30F5": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/WebSocketConnectLambda/ServiceRole/Resource"
+   }
+  },
+  "WebSocketConnectLambdaServiceRoleDefaultPolicyE26C6A4C": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "execute-api:ManageConnections",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:aws:execute-api:ap-south-1:437040615496:",
+          {
+           "Ref": "PipelineWebSocketApiB1A0A9C2"
+          },
+          "/prod/POST/@connections/*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "WebSocketConnectLambdaServiceRoleDefaultPolicyE26C6A4C",
+    "Roles": [
+     {
+      "Ref": "WebSocketConnectLambdaServiceRole52FE30F5"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/WebSocketConnectLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "WebSocketConnectLambda7B54F409": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-437040615496-ap-south-1",
+     "S3Key": "afb926ead48a3dc2a89ba1d6e996c4950bb3f52ac39c30d239f43e3d5154f4b4.zip"
+    },
+    "Handler": "index.handler",
+    "MemorySize": 128,
+    "Role": {
+     "Fn::GetAtt": [
+      "WebSocketConnectLambdaServiceRole52FE30F5",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "WebSocketConnectLambdaServiceRoleDefaultPolicyE26C6A4C",
+    "WebSocketConnectLambdaServiceRole52FE30F5"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/WebSocketConnectLambda/Resource",
+    "aws:asset:path": "asset.afb926ead48a3dc2a89ba1d6e996c4950bb3f52ac39c30d239f43e3d5154f4b4",
+    "aws:asset:is-bundled": true,
+    "aws:asset:property": "Code"
+   }
+  },
+  "WebSocketConnectLambdaLogGroup81097F8F": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "WebSocketConnectLambda7B54F409"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 731
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/WebSocketConnectLambda/LogGroup/Resource"
+   }
+  },
+  "WebSocketDisconnectLambdaServiceRole1FA6EAD1": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/WebSocketDisconnectLambda/ServiceRole/Resource"
+   }
+  },
+  "WebSocketDisconnectLambda124CEB46": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-437040615496-ap-south-1",
+     "S3Key": "2c016e19e231dc51214e8ed1738bca2da64aa219076d60c66d2b74050f734acd.zip"
+    },
+    "Handler": "index.handler",
+    "MemorySize": 128,
+    "Role": {
+     "Fn::GetAtt": [
+      "WebSocketDisconnectLambdaServiceRole1FA6EAD1",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "WebSocketDisconnectLambdaServiceRole1FA6EAD1"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/WebSocketDisconnectLambda/Resource",
+    "aws:asset:path": "asset.2c016e19e231dc51214e8ed1738bca2da64aa219076d60c66d2b74050f734acd",
+    "aws:asset:is-bundled": true,
+    "aws:asset:property": "Code"
+   }
+  },
+  "WebSocketDisconnectLambdaLogGroupCE8F46D6": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "WebSocketDisconnectLambda124CEB46"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 731
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/WebSocketDisconnectLambda/LogGroup/Resource"
+   }
+  },
+  "WebSocketDefaultLambdaServiceRoleC9A91AC5": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/WebSocketDefaultLambda/ServiceRole/Resource"
+   }
+  },
+  "WebSocketDefaultLambdaServiceRoleDefaultPolicy1378B28F": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "execute-api:ManageConnections",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:aws:execute-api:ap-south-1:437040615496:",
+          {
+           "Ref": "PipelineWebSocketApiB1A0A9C2"
+          },
+          "/prod/POST/@connections/*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "WebSocketDefaultLambdaServiceRoleDefaultPolicy1378B28F",
+    "Roles": [
+     {
+      "Ref": "WebSocketDefaultLambdaServiceRoleC9A91AC5"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/WebSocketDefaultLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "WebSocketDefaultLambda77CC3F0C": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-437040615496-ap-south-1",
+     "S3Key": "9bfcdee08a60ad683d30eeae999feefeb439c68619cc1afc2744518cfd6dd0d3.zip"
+    },
+    "Handler": "index.handler",
+    "MemorySize": 128,
+    "Role": {
+     "Fn::GetAtt": [
+      "WebSocketDefaultLambdaServiceRoleC9A91AC5",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "WebSocketDefaultLambdaServiceRoleDefaultPolicy1378B28F",
+    "WebSocketDefaultLambdaServiceRoleC9A91AC5"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/WebSocketDefaultLambda/Resource",
+    "aws:asset:path": "asset.9bfcdee08a60ad683d30eeae999feefeb439c68619cc1afc2744518cfd6dd0d3",
+    "aws:asset:is-bundled": true,
+    "aws:asset:property": "Code"
+   }
+  },
+  "WebSocketDefaultLambdaLogGroup95FCFF44": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "WebSocketDefaultLambda77CC3F0C"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 731
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/WebSocketDefaultLambda/LogGroup/Resource"
+   }
+  },
+  "PipelineWebSocketApiB1A0A9C2": {
+   "Type": "AWS::ApiGatewayV2::Api",
+   "Properties": {
+    "Name": "PipelineWebSocketApi",
+    "ProtocolType": "WEBSOCKET",
+    "RouteSelectionExpression": "$request.body.action"
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/PipelineWebSocketApi/Resource"
+   }
+  },
+  "PipelineWebSocketApiconnectRouteConnectIntegrationPermission7669D0F5": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "WebSocketConnectLambda7B54F409",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-south-1:437040615496:",
+       {
+        "Ref": "PipelineWebSocketApiB1A0A9C2"
+       },
+       "/*$connect"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/PipelineWebSocketApi/$connect-Route/ConnectIntegration-Permission"
+   }
+  },
+  "PipelineWebSocketApiconnectRouteConnectIntegration762AE671": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "PipelineWebSocketApiB1A0A9C2"
+    },
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:apigateway:ap-south-1:lambda:path/2015-03-31/functions/",
+       {
+        "Fn::GetAtt": [
+         "WebSocketConnectLambda7B54F409",
+         "Arn"
+        ]
+       },
+       "/invocations"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/PipelineWebSocketApi/$connect-Route/ConnectIntegration/Resource"
+   }
+  },
+  "PipelineWebSocketApiconnectRoute870887A1": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "PipelineWebSocketApiB1A0A9C2"
+    },
+    "AuthorizationType": "NONE",
+    "RouteKey": "$connect",
+    "Target": {
+     "Fn::Join": [
+      "",
+      [
+       "integrations/",
+       {
+        "Ref": "PipelineWebSocketApiconnectRouteConnectIntegration762AE671"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/PipelineWebSocketApi/$connect-Route/Resource"
+   }
+  },
+  "PipelineWebSocketApidisconnectRouteDisconnectIntegrationPermission496EDA99": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "WebSocketDisconnectLambda124CEB46",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-south-1:437040615496:",
+       {
+        "Ref": "PipelineWebSocketApiB1A0A9C2"
+       },
+       "/*$disconnect"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/PipelineWebSocketApi/$disconnect-Route/DisconnectIntegration-Permission"
+   }
+  },
+  "PipelineWebSocketApidisconnectRouteDisconnectIntegration0BA996D2": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "PipelineWebSocketApiB1A0A9C2"
+    },
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:apigateway:ap-south-1:lambda:path/2015-03-31/functions/",
+       {
+        "Fn::GetAtt": [
+         "WebSocketDisconnectLambda124CEB46",
+         "Arn"
+        ]
+       },
+       "/invocations"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/PipelineWebSocketApi/$disconnect-Route/DisconnectIntegration/Resource"
+   }
+  },
+  "PipelineWebSocketApidisconnectRoute62EEBCC3": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "PipelineWebSocketApiB1A0A9C2"
+    },
+    "AuthorizationType": "NONE",
+    "RouteKey": "$disconnect",
+    "Target": {
+     "Fn::Join": [
+      "",
+      [
+       "integrations/",
+       {
+        "Ref": "PipelineWebSocketApidisconnectRouteDisconnectIntegration0BA996D2"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/PipelineWebSocketApi/$disconnect-Route/Resource"
+   }
+  },
+  "PipelineWebSocketApidefaultRouteDefaultIntegrationPermission1C55204D": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "WebSocketDefaultLambda77CC3F0C",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-south-1:437040615496:",
+       {
+        "Ref": "PipelineWebSocketApiB1A0A9C2"
+       },
+       "/*$default"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/PipelineWebSocketApi/$default-Route/DefaultIntegration-Permission"
+   }
+  },
+  "PipelineWebSocketApidefaultRouteDefaultIntegration88084307": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "PipelineWebSocketApiB1A0A9C2"
+    },
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:apigateway:ap-south-1:lambda:path/2015-03-31/functions/",
+       {
+        "Fn::GetAtt": [
+         "WebSocketDefaultLambda77CC3F0C",
+         "Arn"
+        ]
+       },
+       "/invocations"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/PipelineWebSocketApi/$default-Route/DefaultIntegration/Resource"
+   }
+  },
+  "PipelineWebSocketApidefaultRouteF9EDB9CC": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "PipelineWebSocketApiB1A0A9C2"
+    },
+    "AuthorizationType": "NONE",
+    "RouteKey": "$default",
+    "Target": {
+     "Fn::Join": [
+      "",
+      [
+       "integrations/",
+       {
+        "Ref": "PipelineWebSocketApidefaultRouteDefaultIntegration88084307"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/PipelineWebSocketApi/$default-Route/Resource"
+   }
+  },
+  "PipelineWebSocketStage1F1A5B71": {
+   "Type": "AWS::ApiGatewayV2::Stage",
+   "Properties": {
+    "ApiId": {
+     "Ref": "PipelineWebSocketApiB1A0A9C2"
+    },
+    "AutoDeploy": true,
+    "StageName": "prod"
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/PipelineWebSocketStage/Resource"
+   }
+  },
+  "GenerateLambdaServiceRoleDC98905B": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/GenerateLambda/ServiceRole/Resource"
+   }
+  },
+  "GenerateLambdaServiceRoleDefaultPolicyD853F5EF": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::ImportValue": "SandboxStack:ExportsOutputFnGetAttSandboxLambda2B36767DArn7E5484AA"
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::ImportValue": "SandboxStack:ExportsOutputFnGetAttSandboxLambda2B36767DArn7E5484AA"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "secretsmanager:GetSecretValue",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "AnthropicApiKeySecret77C8E53B"
+       }
+      },
+      {
+       "Action": [
+        "aws-marketplace:Subscribe",
+        "aws-marketplace:ViewSubscriptions"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "GenerateLambdaServiceRoleDefaultPolicyD853F5EF",
+    "Roles": [
+     {
+      "Ref": "GenerateLambdaServiceRoleDC98905B"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/GenerateLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "GenerateLambda921FA2E9": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-437040615496-ap-south-1",
+     "S3Key": "539943294b22b5c33666931de1e56addba941ee391c384c325ad49055b8f2a42.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "ANTHROPIC_API_KEY_SECRET_ARN": {
+       "Ref": "AnthropicApiKeySecret77C8E53B"
+      },
+      "SANDBOX_FUNCTION_NAME": {
+       "Fn::ImportValue": "SandboxStack:ExportsOutputRefSandboxLambda2B36767D7D6E73DC"
+      }
+     }
+    },
+    "Handler": "index.handler",
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "GenerateLambdaServiceRoleDC98905B",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 60
+   },
+   "DependsOn": [
+    "GenerateLambdaServiceRoleDefaultPolicyD853F5EF",
+    "GenerateLambdaServiceRoleDC98905B"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/GenerateLambda/Resource",
+    "aws:asset:path": "asset.539943294b22b5c33666931de1e56addba941ee391c384c325ad49055b8f2a42",
+    "aws:asset:is-bundled": true,
+    "aws:asset:property": "Code"
+   }
+  },
+  "GenerateLambdaLogGroupFBBD2D63": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "GenerateLambda921FA2E9"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 731
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/GenerateLambda/LogGroup/Resource"
+   }
+  },
+  "GenerateLambdaFunctionUrl0FD824AC": {
+   "Type": "AWS::Lambda::Url",
+   "Properties": {
+    "AuthType": "NONE",
+    "Cors": {
+     "AllowHeaders": [
+      "Content-Type"
+     ],
+     "AllowMethods": [
+      "POST"
+     ],
+     "AllowOrigins": [
+      "*"
+     ]
+    },
+    "TargetFunctionArn": {
+     "Fn::GetAtt": [
+      "GenerateLambda921FA2E9",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/GenerateLambda/FunctionUrl/Resource"
+   }
+  },
+  "GenerateLambdainvokefunctionurl3E83A843": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunctionUrl",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "GenerateLambda921FA2E9",
+      "Arn"
+     ]
+    },
+    "FunctionUrlAuthType": "NONE",
+    "Principal": "*"
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/GenerateLambda/invoke-function-url"
+   }
+  },
+  "GenerateLambdainvokefunctionC48D7C7D": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "GenerateLambda921FA2E9",
+      "Arn"
+     ]
+    },
+    "InvokedViaFunctionUrl": true,
+    "Principal": "*"
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/GenerateLambda/invoke-function"
+   }
+  },
+  "OrchestrationLambdaServiceRole711687AB": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/OrchestrationLambda/ServiceRole/Resource"
+   }
+  },
+  "OrchestrationLambdaServiceRoleDefaultPolicy2C7636F7": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::ImportValue": "SandboxStack:ExportsOutputFnGetAttSandboxLambda2B36767DArn7E5484AA"
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::ImportValue": "SandboxStack:ExportsOutputFnGetAttSandboxLambda2B36767DArn7E5484AA"
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "GenerationsTable592AAEF3",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetSecretValue"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "AnthropicApiKeySecret77C8E53B"
+       }
+      },
+      {
+       "Action": "execute-api:ManageConnections",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:aws:execute-api:ap-south-1:437040615496:",
+          {
+           "Ref": "PipelineWebSocketApiB1A0A9C2"
+          },
+          "/*/*/@connections/*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": "pricing:GetProducts",
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "OrchestrationLambdaServiceRoleDefaultPolicy2C7636F7",
+    "Roles": [
+     {
+      "Ref": "OrchestrationLambdaServiceRole711687AB"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/OrchestrationLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "OrchestrationLambdaA3E58080": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-437040615496-ap-south-1",
+     "S3Key": "06341a9cb91e1e09597412e0f96fbee408e204e23665c3925aded7f41b6081c1.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "ANTHROPIC_API_KEY_SECRET_ARN": {
+       "Ref": "AnthropicApiKeySecret77C8E53B"
+      },
+      "SANDBOX_FUNCTION_NAME": {
+       "Fn::ImportValue": "SandboxStack:ExportsOutputRefSandboxLambda2B36767D7D6E73DC"
+      },
+      "GENERATIONS_TABLE_NAME": {
+       "Ref": "GenerationsTable592AAEF3"
+      },
+      "WEBSOCKET_MANAGEMENT_ENDPOINT": {
+       "Fn::Join": [
+        "",
+        [
+         "https://",
+         {
+          "Ref": "PipelineWebSocketApiB1A0A9C2"
+         },
+         ".execute-api.ap-south-1.amazonaws.com/prod"
+        ]
+       ]
+      },
+      "SIMULATE_SLOW_STEPS": "0"
+     }
+    },
+    "Handler": "index.handler",
+    "MemorySize": 768,
+    "Role": {
+     "Fn::GetAtt": [
+      "OrchestrationLambdaServiceRole711687AB",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 120
+   },
+   "DependsOn": [
+    "OrchestrationLambdaServiceRoleDefaultPolicy2C7636F7",
+    "OrchestrationLambdaServiceRole711687AB"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/OrchestrationLambda/Resource",
+    "aws:asset:path": "asset.06341a9cb91e1e09597412e0f96fbee408e204e23665c3925aded7f41b6081c1",
+    "aws:asset:is-bundled": true,
+    "aws:asset:property": "Code"
+   }
+  },
+  "OrchestrationLambdaLogGroup8A8428C6": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "OrchestrationLambdaA3E58080"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 731
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/OrchestrationLambda/LogGroup/Resource"
+   }
+  },
+  "OrchestrationLambdaFunctionUrl1FB307CD": {
+   "Type": "AWS::Lambda::Url",
+   "Properties": {
+    "AuthType": "NONE",
+    "Cors": {
+     "AllowHeaders": [
+      "Content-Type"
+     ],
+     "AllowMethods": [
+      "POST"
+     ],
+     "AllowOrigins": [
+      "*"
+     ]
+    },
+    "TargetFunctionArn": {
+     "Fn::GetAtt": [
+      "OrchestrationLambdaA3E58080",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/OrchestrationLambda/FunctionUrl/Resource"
+   }
+  },
+  "OrchestrationLambdainvokefunctionurlB1E48D9D": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunctionUrl",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "OrchestrationLambdaA3E58080",
+      "Arn"
+     ]
+    },
+    "FunctionUrlAuthType": "NONE",
+    "Principal": "*"
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/OrchestrationLambda/invoke-function-url"
+   }
+  },
+  "OrchestrationLambdainvokefunction13637C01": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "OrchestrationLambdaA3E58080",
+      "Arn"
+     ]
+    },
+    "InvokedViaFunctionUrl": true,
+    "Principal": "*"
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/OrchestrationLambda/invoke-function"
+   }
+  },
+  "DeployLambdaServiceRoleE157DB9F": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DeployLambda/ServiceRole/Resource"
+   }
+  },
+  "DeployLambdaServiceRoleDefaultPolicy54F7491A": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "GenerationsTable592AAEF3",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "s3:Abort*",
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "TemplatesBucketB07CED20",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "TemplatesBucketB07CED20",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "execute-api:ManageConnections",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:aws:execute-api:ap-south-1:437040615496:",
+          {
+           "Ref": "PipelineWebSocketApiB1A0A9C2"
+          },
+          "/*/*/@connections/*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": [
+        "cloudformation:CreateChangeSet",
+        "cloudformation:DeleteStack",
+        "cloudformation:DescribeChangeSet",
+        "cloudformation:DescribeStackEvents",
+        "cloudformation:DescribeStacks",
+        "cloudformation:ExecuteChangeSet"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        "arn:aws:cloudformation:ap-south-1:437040615496:changeSet/apex-cs-*/*",
+        "arn:aws:cloudformation:ap-south-1:437040615496:stack/apex-gen-*/*"
+       ]
+      },
+      {
+       "Action": "iam:PassRole",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "DeploymentRoleC7BBCF2C",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "DeployLambdaServiceRoleDefaultPolicy54F7491A",
+    "Roles": [
+     {
+      "Ref": "DeployLambdaServiceRoleE157DB9F"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DeployLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "DeployLambda2C7D0F8E": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-437040615496-ap-south-1",
+     "S3Key": "66f631d89f8de63e5104470db456f23bcfdae6988f52b9cc0f8837df0590d15a.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "GENERATIONS_TABLE_NAME": {
+       "Ref": "GenerationsTable592AAEF3"
+      },
+      "TEMPLATES_BUCKET_NAME": {
+       "Ref": "TemplatesBucketB07CED20"
+      },
+      "WEBSOCKET_MANAGEMENT_ENDPOINT": {
+       "Fn::Join": [
+        "",
+        [
+         "https://",
+         {
+          "Ref": "PipelineWebSocketApiB1A0A9C2"
+         },
+         ".execute-api.ap-south-1.amazonaws.com/prod"
+        ]
+       ]
+      },
+      "DEPLOYMENT_ROLE_ARN": {
+       "Fn::GetAtt": [
+        "DeploymentRoleC7BBCF2C",
+        "Arn"
+       ]
+      },
+      "AWS_ACCOUNT_ID": "437040615496"
+     }
+    },
+    "Handler": "index.handler",
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "DeployLambdaServiceRoleE157DB9F",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 900
+   },
+   "DependsOn": [
+    "DeployLambdaServiceRoleDefaultPolicy54F7491A",
+    "DeployLambdaServiceRoleE157DB9F"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DeployLambda/Resource",
+    "aws:asset:path": "asset.66f631d89f8de63e5104470db456f23bcfdae6988f52b9cc0f8837df0590d15a",
+    "aws:asset:is-bundled": true,
+    "aws:asset:property": "Code"
+   }
+  },
+  "DeployLambdaLogGroup0064E22E": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "DeployLambda2C7D0F8E"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 731
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DeployLambda/LogGroup/Resource"
+   }
+  },
+  "ApprovalLambdaServiceRole4D932194": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/ApprovalLambda/ServiceRole/Resource"
+   }
+  },
+  "ApprovalLambdaServiceRoleDefaultPolicy80FFA3D4": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "GenerationsTable592AAEF3",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DeployLambda2C7D0F8E",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DeployLambda2C7D0F8E",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "ApprovalLambdaServiceRoleDefaultPolicy80FFA3D4",
+    "Roles": [
+     {
+      "Ref": "ApprovalLambdaServiceRole4D932194"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/ApprovalLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "ApprovalLambda98B4F976": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-437040615496-ap-south-1",
+     "S3Key": "45be2420ff24f6f8deec25e07cfd7e42a9624f8837111da3ee2af3f71f9f878f.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "GENERATIONS_TABLE_NAME": {
+       "Ref": "GenerationsTable592AAEF3"
+      },
+      "DEPLOY_FUNCTION_NAME": {
+       "Ref": "DeployLambda2C7D0F8E"
+      }
+     }
+    },
+    "Handler": "index.handler",
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "ApprovalLambdaServiceRole4D932194",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "ApprovalLambdaServiceRoleDefaultPolicy80FFA3D4",
+    "ApprovalLambdaServiceRole4D932194"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/ApprovalLambda/Resource",
+    "aws:asset:path": "asset.45be2420ff24f6f8deec25e07cfd7e42a9624f8837111da3ee2af3f71f9f878f",
+    "aws:asset:is-bundled": true,
+    "aws:asset:property": "Code"
+   }
+  },
+  "ApprovalLambdaLogGroupBD8C3326": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "ApprovalLambda98B4F976"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 731
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/ApprovalLambda/LogGroup/Resource"
+   }
+  },
+  "HistoryLambdaServiceRole6CA0090A": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/HistoryLambda/ServiceRole/Resource"
+   }
+  },
+  "HistoryLambdaServiceRoleDefaultPolicyFFF32D3B": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:Query",
+        "dynamodb:Scan"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "GenerationsTable592AAEF3",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "HistoryLambdaServiceRoleDefaultPolicyFFF32D3B",
+    "Roles": [
+     {
+      "Ref": "HistoryLambdaServiceRole6CA0090A"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/HistoryLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "HistoryLambda3D0CB663": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-437040615496-ap-south-1",
+     "S3Key": "879456517d37b4f44213243052c47fcef326d5c142f6736b7d0dcd0b563e30c9.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "GENERATIONS_TABLE_NAME": {
+       "Ref": "GenerationsTable592AAEF3"
+      }
+     }
+    },
+    "Handler": "index.handler",
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "HistoryLambdaServiceRole6CA0090A",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "HistoryLambdaServiceRoleDefaultPolicyFFF32D3B",
+    "HistoryLambdaServiceRole6CA0090A"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/HistoryLambda/Resource",
+    "aws:asset:path": "asset.879456517d37b4f44213243052c47fcef326d5c142f6736b7d0dcd0b563e30c9",
+    "aws:asset:is-bundled": true,
+    "aws:asset:property": "Code"
+   }
+  },
+  "HistoryLambdaLogGroup6E314982": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "HistoryLambda3D0CB663"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 731
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/HistoryLambda/LogGroup/Resource"
+   }
+  },
+  "DevopsCopilotApi076B167C": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "Name": "DevOps Copilot API"
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Resource"
+   }
+  },
+  "DevopsCopilotApiDeploymentCFE1FA131fe37c6a410d0905c50726b574fa3f5d": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "Description": "Automatically created by the RestApi construct",
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "DependsOn": [
+    "DevopsCopilotApiapproveOPTIONSC9DA5B8C",
+    "DevopsCopilotApiapprovePOST78A5033D",
+    "DevopsCopilotApiapprove1D581B0E",
+    "DevopsCopilotApigenerateOPTIONSBAD277C8",
+    "DevopsCopilotApigeneratePOSTBB804D34",
+    "DevopsCopilotApigenerate2A01D4E4",
+    "DevopsCopilotApihistoryGET3ABED6A7",
+    "DevopsCopilotApihistoryOPTIONS29C440C5",
+    "DevopsCopilotApihistory2ED6A31F",
+    "DevopsCopilotApiOPTIONSEB4F2CE1",
+    "DevopsCopilotApiorchestrateOPTIONSB11F0991",
+    "DevopsCopilotApiorchestratePOST9157F78F",
+    "DevopsCopilotApiorchestrate2E11019B"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Deployment/Resource",
+    "aws:cdk:do-not-refactor": true
+   }
+  },
+  "DevopsCopilotApiDeploymentStageprodB5906A9D": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "DeploymentId": {
+     "Ref": "DevopsCopilotApiDeploymentCFE1FA131fe37c6a410d0905c50726b574fa3f5d"
+    },
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    },
+    "StageName": "prod"
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/DeploymentStage.prod/Resource"
+   }
+  },
+  "DevopsCopilotApiOPTIONSEB4F2CE1": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Fn::GetAtt": [
+      "DevopsCopilotApi076B167C",
+      "RootResourceId"
+     ]
+    },
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/OPTIONS/Resource"
+   }
+  },
+  "DevopsCopilotApigenerate2A01D4E4": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "DevopsCopilotApi076B167C",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "generate",
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/generate/Resource"
+   }
+  },
+  "DevopsCopilotApigenerateOPTIONSBAD277C8": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "DevopsCopilotApigenerate2A01D4E4"
+    },
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/generate/OPTIONS/Resource"
+   }
+  },
+  "DevopsCopilotApigeneratePOSTApiPermissionInfraStackDevopsCopilotApi058E55BBPOSTgenerate6996478B": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "GenerateLambda921FA2E9",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-south-1:437040615496:",
+       {
+        "Ref": "DevopsCopilotApi076B167C"
+       },
+       "/",
+       {
+        "Ref": "DevopsCopilotApiDeploymentStageprodB5906A9D"
+       },
+       "/POST/generate"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/generate/POST/ApiPermission.InfraStackDevopsCopilotApi058E55BB.POST..generate"
+   }
+  },
+  "DevopsCopilotApigeneratePOSTApiPermissionTestInfraStackDevopsCopilotApi058E55BBPOSTgenerate5CFE1B41": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "GenerateLambda921FA2E9",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-south-1:437040615496:",
+       {
+        "Ref": "DevopsCopilotApi076B167C"
+       },
+       "/test-invoke-stage/POST/generate"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/generate/POST/ApiPermission.Test.InfraStackDevopsCopilotApi058E55BB.POST..generate"
+   }
+  },
+  "DevopsCopilotApigeneratePOSTBB804D34": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:ap-south-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "GenerateLambda921FA2E9",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "DevopsCopilotApigenerate2A01D4E4"
+    },
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/generate/POST/Resource"
+   }
+  },
+  "DevopsCopilotApiorchestrate2E11019B": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "DevopsCopilotApi076B167C",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "orchestrate",
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/orchestrate/Resource"
+   }
+  },
+  "DevopsCopilotApiorchestrateOPTIONSB11F0991": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "DevopsCopilotApiorchestrate2E11019B"
+    },
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/orchestrate/OPTIONS/Resource"
+   }
+  },
+  "DevopsCopilotApiorchestratePOSTApiPermissionInfraStackDevopsCopilotApi058E55BBPOSTorchestrateFA681E65": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "OrchestrationLambdaA3E58080",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-south-1:437040615496:",
+       {
+        "Ref": "DevopsCopilotApi076B167C"
+       },
+       "/",
+       {
+        "Ref": "DevopsCopilotApiDeploymentStageprodB5906A9D"
+       },
+       "/POST/orchestrate"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/orchestrate/POST/ApiPermission.InfraStackDevopsCopilotApi058E55BB.POST..orchestrate"
+   }
+  },
+  "DevopsCopilotApiorchestratePOSTApiPermissionTestInfraStackDevopsCopilotApi058E55BBPOSTorchestrate28C41A0E": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "OrchestrationLambdaA3E58080",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-south-1:437040615496:",
+       {
+        "Ref": "DevopsCopilotApi076B167C"
+       },
+       "/test-invoke-stage/POST/orchestrate"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/orchestrate/POST/ApiPermission.Test.InfraStackDevopsCopilotApi058E55BB.POST..orchestrate"
+   }
+  },
+  "DevopsCopilotApiorchestratePOST9157F78F": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "TimeoutInMillis": 29000,
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:ap-south-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "OrchestrationLambdaA3E58080",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "DevopsCopilotApiorchestrate2E11019B"
+    },
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/orchestrate/POST/Resource"
+   }
+  },
+  "DevopsCopilotApiapprove1D581B0E": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "DevopsCopilotApi076B167C",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "approve",
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/approve/Resource"
+   }
+  },
+  "DevopsCopilotApiapproveOPTIONSC9DA5B8C": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "DevopsCopilotApiapprove1D581B0E"
+    },
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/approve/OPTIONS/Resource"
+   }
+  },
+  "DevopsCopilotApiapprovePOSTApiPermissionInfraStackDevopsCopilotApi058E55BBPOSTapprove9E92B6BB": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "ApprovalLambda98B4F976",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-south-1:437040615496:",
+       {
+        "Ref": "DevopsCopilotApi076B167C"
+       },
+       "/",
+       {
+        "Ref": "DevopsCopilotApiDeploymentStageprodB5906A9D"
+       },
+       "/POST/approve"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/approve/POST/ApiPermission.InfraStackDevopsCopilotApi058E55BB.POST..approve"
+   }
+  },
+  "DevopsCopilotApiapprovePOSTApiPermissionTestInfraStackDevopsCopilotApi058E55BBPOSTapprove5F7BD1F3": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "ApprovalLambda98B4F976",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-south-1:437040615496:",
+       {
+        "Ref": "DevopsCopilotApi076B167C"
+       },
+       "/test-invoke-stage/POST/approve"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/approve/POST/ApiPermission.Test.InfraStackDevopsCopilotApi058E55BB.POST..approve"
+   }
+  },
+  "DevopsCopilotApiapprovePOST78A5033D": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:ap-south-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "ApprovalLambda98B4F976",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "DevopsCopilotApiapprove1D581B0E"
+    },
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/approve/POST/Resource"
+   }
+  },
+  "DevopsCopilotApihistory2ED6A31F": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "DevopsCopilotApi076B167C",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "history",
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/history/Resource"
+   }
+  },
+  "DevopsCopilotApihistoryOPTIONS29C440C5": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "DevopsCopilotApihistory2ED6A31F"
+    },
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/history/OPTIONS/Resource"
+   }
+  },
+  "DevopsCopilotApihistoryGETApiPermissionInfraStackDevopsCopilotApi058E55BBGEThistory93708627": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "HistoryLambda3D0CB663",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-south-1:437040615496:",
+       {
+        "Ref": "DevopsCopilotApi076B167C"
+       },
+       "/",
+       {
+        "Ref": "DevopsCopilotApiDeploymentStageprodB5906A9D"
+       },
+       "/GET/history"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/history/GET/ApiPermission.InfraStackDevopsCopilotApi058E55BB.GET..history"
+   }
+  },
+  "DevopsCopilotApihistoryGETApiPermissionTestInfraStackDevopsCopilotApi058E55BBGEThistory7B3A627C": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "HistoryLambda3D0CB663",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-south-1:437040615496:",
+       {
+        "Ref": "DevopsCopilotApi076B167C"
+       },
+       "/test-invoke-stage/GET/history"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/history/GET/ApiPermission.Test.InfraStackDevopsCopilotApi058E55BB.GET..history"
+   }
+  },
+  "DevopsCopilotApihistoryGET3ABED6A7": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:ap-south-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "HistoryLambda3D0CB663",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "DevopsCopilotApihistory2ED6A31F"
+    },
+    "RestApiId": {
+     "Ref": "DevopsCopilotApi076B167C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/DevopsCopilotApi/Default/history/GET/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/+1a62/jNgz/W04fD6q3thsw9Fv62K24NsmSFMMQBIFsMYlaWfL0aM9n+H8/SLJjN2nvsb6CzUADW6REUj9Soij3IDr49bfo53fkTu8l9GaPszgqxoYkN5jc6XmhIVFgdEoEWYKKirFvTwsUGH2SAjpC71E5wycLEbglprkgqaRxVExIzGFaoIwowwyT4iPk6KhAoh6Ikckz9zpGJUZaKvP1HjHjnInlpaSONOz9PR+ejeajsz+vzsYThJGCVN4SPpScJTk6QhS0UTKvDPTmlFgfRsWxTW78TEAkKs+cbU7H4fyy1+99ODtFGMVcJjdDG3OW9JIEtK7sAbGQKoHx+AIdGWXhca0YEWvkKXAwMIivITE6DAnmrG1I2Sfm1Lfd4PDXh5Fn6Sh07W1JK2c4sILuaYFi32x5ZYP/vbrCgLEhBlIQbVXHRMPUI/H4b1ZiRtKoGEnvf6K1TYEee9dmiomEZYT3kkRaYSpYQx83oJdU7njvXE5BJ4plLVKBCKUTWcM9LcpZQ6yFb3GNIcnqXHAmYM0Lln6L+S+UPWG+YbFRL5KBdkLv0fKeqvq+7KxfcQodWrswha/L/c/H+1Om/3LcDtgO2G7B/uD0/bnHGY6rY4+bTy1uIh1nS8s2mdLW6aeN6zb52eTvnqA3AuINyJ3tu6bWr+OwhEvMSRpTMheSwrWO+v7xuxV+a5oWSFlh2LpmXBFBOah1xWZUXleTLAVp6z0uhVSqfMw+1wOTUFmGMuNZZD6boB03LraCutrcZRT4ZEAJwi8ltRx0nTme3/7vUPu6UwRxy5QULoofcFr4e0Nzdg+MDpUOlf/XwvnmTF9KUTnD+nBOtAajo557VEk1Kk4Wos6lPueCSpnWrlWTrxSfFmhRteoSwZrVJFzP9gf9Mz8VpR2shHN5B3Sg2JKJ+ua0Il6CWUnqkjwaDsYTNFtz/gBCQbU27lfV548bV4qXmMuljooLufygpM2mBeLVa3PjjXeP6O2vjS4xydiSGLgj+e1BVPwF8Vj6S+SMPXZ76wX0MobXnUfSmnuXvbOGdy4MLBXx569NIS1eqMWsgWbk2JCllxo+G7hW29yoGIH2dhZIhbd+8zmAwoJYbk6k0kMFC86WKzPw18NNIDwQBusgaFxdacGnkHGZu2UyLbaumzEiGaveFBjCRNNdr53hi9ELuWQJ4ed0owrv6A/TvRMaNHEIC+eCmtSKa8/EI9DSqgTqbxAzHPwaIsWz6l3TmCzwKgJrQrKiyFbUWLOSin1222y7dU5bO48j+fHVFuQTBcnYR8hH8I9lCig6WhCu4bH+bpN2Jo1AZ1Lo6vJEG2KsPqmTgIuzwB4SRVIw6x1qVlZYXt6T8qNCcAfWa4FVnxw6uDu4O7g7uJ8Mt8+FYcA6GYZ/sGjKiYyY1ZCopnB5IW59iPJGlGVjTzjZWW1kukFr+m/wh0reMgrKJXbsaxOX8JlYujEDazJrSuzu/qJr/dPtwS/R/n60/+5aM7ZXVUvRKDy/AM62CZTUIgAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "InfraStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "DevopsCopilotApiEndpointEABFCD3B": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "DevopsCopilotApi076B167C"
+      },
+      ".execute-api.ap-south-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "DevopsCopilotApiDeploymentStageprodB5906A9D"
+      },
+      "/"
+     ]
+    ]
+   }
+  },
+  "ApiUrl": {
+   "Description": "API Gateway URL (29s timeout limit)",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "DevopsCopilotApi076B167C"
+      },
+      ".execute-api.ap-south-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "DevopsCopilotApiDeploymentStageprodB5906A9D"
+      },
+      "/"
+     ]
+    ]
+   }
+  },
+  "FunctionUrl": {
+   "Description": "Legacy generate Lambda Function URL (60s timeout)",
+   "Value": {
+    "Fn::GetAtt": [
+     "GenerateLambdaFunctionUrl0FD824AC",
+     "FunctionUrl"
+    ]
+   }
+  },
+  "OrchestrationFunctionUrl": {
+   "Description": "Orchestration Lambda Function URL (120s timeout — use this from the frontend)",
+   "Value": {
+    "Fn::GetAtt": [
+     "OrchestrationLambdaFunctionUrl1FB307CD",
+     "FunctionUrl"
+    ]
+   }
+  },
+  "WebSocketUrl": {
+   "Description": "WebSocket URL for live pipeline streaming",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "wss://",
+      {
+       "Ref": "PipelineWebSocketApiB1A0A9C2"
+      },
+      ".execute-api.ap-south-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/prod"
+     ]
+    ]
+   }
+  },
+  "OrchestrationLambdaName": {
+   "Description": "Generation orchestration Lambda name",
+   "Value": {
+    "Ref": "OrchestrationLambdaA3E58080"
+   }
+  },
+  "GenerationsTableName": {
+   "Description": "DynamoDB table for generation state",
+   "Value": {
+    "Ref": "GenerationsTable592AAEF3"
+   }
+  },
+  "TemplatesBucketName": {
+   "Description": "S3 bucket for CloudFormation templates",
+   "Value": {
+    "Ref": "TemplatesBucketB07CED20"
+   }
+  },
+  "DeployLambdaName": {
+   "Description": "Deploy Lambda that runs CloudFormation change sets",
+   "Value": {
+    "Ref": "DeployLambda2C7D0F8E"
+   }
+  },
+  "DeploymentRoleArn": {
+   "Description": "IAM role assumed by CloudFormation for generated stacks",
+   "Value": {
+    "Fn::GetAtt": [
+     "DeploymentRoleC7BBCF2C",
+     "Arn"
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

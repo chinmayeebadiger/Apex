@@ -1,0 +1,3181 @@
+{
+  "/InfraStack": [
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/AnthropicApiKeySecret": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "secretName": "*"
+      }
+    }
+  ],
+  "/InfraStack/GenerationsTable": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "partitionKey": {
+          "name": "*",
+          "type": "S"
+        },
+        "sortKey": {
+          "name": "*",
+          "type": "S"
+        },
+        "billingMode": "PAY_PER_REQUEST",
+        "removalPolicy": "destroy"
+      }
+    }
+  ],
+  "/InfraStack/TemplatesBucket": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "encryption": "S3_MANAGED",
+        "blockPublicAccess": "*",
+        "enforceSSL": true,
+        "removalPolicy": "destroy",
+        "autoDeleteObjects": true
+      }
+    }
+  ],
+  "/InfraStack/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
+      "data": true
+    }
+  ],
+  "/InfraStack/DeploymentRole": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "assumedBy": {
+          "principalAccount": "*",
+          "assumeRoleAction": "*"
+        },
+        "description": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/WebSocketConnectLambda": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "code": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*"
+      }
+    }
+  ],
+  "/InfraStack/WebSocketDisconnectLambda": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "code": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*"
+      }
+    }
+  ],
+  "/InfraStack/WebSocketDefaultLambda": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "bundling": {
+          "externalModules": "*"
+        },
+        "code": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "bundling": {
+          "externalModules": "*"
+        }
+      }
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/PipelineWebSocketStage": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/GenerateLambda": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "bundling": {
+          "externalModules": "*"
+        },
+        "environment": "*",
+        "code": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "bundling": {
+          "externalModules": "*"
+        },
+        "environment": "*"
+      }
+    }
+  ],
+  "/InfraStack/OrchestrationLambda": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "bundling": {
+          "externalModules": "*"
+        },
+        "environment": "*",
+        "code": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "bundling": {
+          "externalModules": "*"
+        },
+        "environment": "*"
+      }
+    }
+  ],
+  "/InfraStack/DeployLambda": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "bundling": {
+          "externalModules": "*"
+        },
+        "environment": "*",
+        "code": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "bundling": {
+          "externalModules": "*"
+        },
+        "environment": "*"
+      }
+    }
+  ],
+  "/InfraStack/ApprovalLambda": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "bundling": {
+          "externalModules": "*"
+        },
+        "environment": "*",
+        "code": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "bundling": {
+          "externalModules": "*"
+        },
+        "environment": "*"
+      }
+    }
+  ],
+  "/InfraStack/HistoryLambda": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "environment": "*",
+        "code": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {}
+    },
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "entry": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "environment": "*"
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "restApiName": "*",
+        "defaultCorsPreflightOptions": {
+          "allowOrigins": "*",
+          "allowMethods": "*"
+        }
+      }
+    }
+  ],
+  "/InfraStack/ApiUrl": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ApiUrl"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:344:5)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/FunctionUrl": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FunctionUrl"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:349:5)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/OrchestrationFunctionUrl": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OrchestrationFunctionUrl"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:354:5)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/WebSocketUrl": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebSocketUrl"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:359:5)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/OrchestrationLambdaName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OrchestrationLambdaName"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:364:5)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/GenerationsTableName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GenerationsTableName"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:369:5)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/TemplatesBucketName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TemplatesBucketName"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:374:5)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DeployLambdaName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeployLambdaName"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:379:5)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DeploymentRoleArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeploymentRoleArn"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:384:5)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/InfraStack/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/InfraStack/AnthropicApiKeySecret/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AnthropicApiKeySecret77C8E53B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Secret2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:21:35)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/GenerationsTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GenerationsTable592AAEF3"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Table2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:25:30)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/GenerationsTable/ScalingRole": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/TemplatesBucket/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TemplatesBucketB07CED20"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Bucket2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:38:29)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketAutoDeleteObjects"
+      }
+    }
+  ],
+  "/InfraStack/TemplatesBucket/Policy": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "bucket": "*"
+      }
+    }
+  ],
+  "/InfraStack/TemplatesBucket/AutoDeleteObjectsCustomResource": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/InfraStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/InfraStack/DeploymentRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeploymentRoleC7BBCF2C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Role2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:46:28)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DeploymentRole/DefaultPolicy": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/WebSocketConnectLambda/ServiceRole": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "assumedBy": {
+          "principalAccount": "*",
+          "assumeRoleAction": "*"
+        },
+        "managedPolicies": [
+          {
+            "managedPolicyArn": "*"
+          }
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    }
+  ],
+  "/InfraStack/WebSocketConnectLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebSocketConnectLambda7B54F409"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:89:29)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/WebSocketConnectLambda/LogGroup": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "logGroupName": "*"
+      }
+    }
+  ],
+  "/InfraStack/WebSocketDisconnectLambda/ServiceRole": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "assumedBy": {
+          "principalAccount": "*",
+          "assumeRoleAction": "*"
+        },
+        "managedPolicies": [
+          {
+            "managedPolicyArn": "*"
+          }
+        ]
+      }
+    }
+  ],
+  "/InfraStack/WebSocketDisconnectLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebSocketDisconnectLambda124CEB46"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:97:32)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/WebSocketDisconnectLambda/LogGroup": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "logGroupName": "*"
+      }
+    }
+  ],
+  "/InfraStack/WebSocketDefaultLambda/ServiceRole": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "assumedBy": {
+          "principalAccount": "*",
+          "assumeRoleAction": "*"
+        },
+        "managedPolicies": [
+          {
+            "managedPolicyArn": "*"
+          }
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    }
+  ],
+  "/InfraStack/WebSocketDefaultLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebSocketDefaultLambda77CC3F0C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:105:29)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/WebSocketDefaultLambda/LogGroup": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "logGroupName": "*"
+      }
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineWebSocketApiB1A0A9C2"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new WebSocketApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:116:26)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$connect-Route": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$disconnect-Route": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$default-Route": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/PipelineWebSocketStage/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineWebSocketStage1F1A5B71"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new WebSocketStage2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:128:28)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/GenerateLambda/ServiceRole": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "assumedBy": {
+          "principalAccount": "*",
+          "assumeRoleAction": "*"
+        },
+        "managedPolicies": [
+          {
+            "managedPolicyArn": "*"
+          }
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/GenerateLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GenerateLambda921FA2E9"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:147:28)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/GenerateLambda/LogGroup": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "logGroupName": "*"
+      }
+    }
+  ],
+  "/InfraStack/GenerateLambda/FunctionUrl": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "function": "*",
+        "authType": "NONE",
+        "cors": {
+          "allowedOrigins": "*",
+          "allowedMethods": [
+            "POST"
+          ],
+          "allowedHeaders": "*"
+        }
+      }
+    }
+  ],
+  "/InfraStack/GenerateLambda/invoke-function-url": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GenerateLambdainvokefunctionurl3E83A843"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...NodejsFunction.addFunctionUrl in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:304:34)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/GenerateLambda/invoke-function": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GenerateLambdainvokefunctionC48D7C7D"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...NodejsFunction.addFunctionUrl in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:304:34)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/OrchestrationLambda/ServiceRole": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "assumedBy": {
+          "principalAccount": "*",
+          "assumeRoleAction": "*"
+        },
+        "managedPolicies": [
+          {
+            "managedPolicyArn": "*"
+          }
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/OrchestrationLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OrchestrationLambdaA3E58080"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:162:33)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/OrchestrationLambda/LogGroup": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "logGroupName": "*"
+      }
+    }
+  ],
+  "/InfraStack/OrchestrationLambda/FunctionUrl": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "function": "*",
+        "authType": "NONE",
+        "cors": {
+          "allowedOrigins": "*",
+          "allowedMethods": [
+            "POST"
+          ],
+          "allowedHeaders": "*"
+        }
+      }
+    }
+  ],
+  "/InfraStack/OrchestrationLambda/invoke-function-url": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OrchestrationLambdainvokefunctionurlB1E48D9D"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...NodejsFunction.addFunctionUrl in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:313:52)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/OrchestrationLambda/invoke-function": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OrchestrationLambdainvokefunction13637C01"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...NodejsFunction.addFunctionUrl in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:313:52)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DeployLambda/ServiceRole": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "assumedBy": {
+          "principalAccount": "*",
+          "assumeRoleAction": "*"
+        },
+        "managedPolicies": [
+          {
+            "managedPolicyArn": "*"
+          }
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/DeployLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeployLambda2C7D0F8E"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:183:26)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DeployLambda/LogGroup": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "logGroupName": "*"
+      }
+    }
+  ],
+  "/InfraStack/ApprovalLambda/ServiceRole": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "assumedBy": {
+          "principalAccount": "*",
+          "assumeRoleAction": "*"
+        },
+        "managedPolicies": [
+          {
+            "managedPolicyArn": "*"
+          }
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/ApprovalLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ApprovalLambda98B4F976"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:207:28)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/ApprovalLambda/LogGroup": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "logGroupName": "*"
+      }
+    }
+  ],
+  "/InfraStack/HistoryLambda/ServiceRole": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "assumedBy": {
+          "principalAccount": "*",
+          "assumeRoleAction": "*"
+        },
+        "managedPolicies": [
+          {
+            "managedPolicyArn": "*"
+          }
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/HistoryLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "HistoryLambda3D0CB663"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:226:27)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/HistoryLambda/LogGroup": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "logGroupName": "*"
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApi076B167C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new RestApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:322:17)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Deployment": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "description": "*",
+        "api": "*",
+        "retainDeployments": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToLogicalId": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToLogicalId": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToLogicalId": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToLogicalId": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToLogicalId": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToLogicalId": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToLogicalId": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToLogicalId": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToLogicalId": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToLogicalId": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToLogicalId": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToLogicalId": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToLogicalId": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/DeploymentStage.prod": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "deployment": "*"
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Endpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiEndpointEABFCD3B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new RestApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:322:17)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib, node internals...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/InfraStack/TemplatesBucket/Policy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TemplatesBucketPolicyC9ACD904"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Bucket2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:38:29)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)"
+      ]
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketPolicyStatements"
+      }
+    }
+  ],
+  "/InfraStack/TemplatesBucket/AutoDeleteObjectsCustomResource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TemplatesBucketAutoDeleteObjectsCustomResource2F94A2B6"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/InfraStack/DeploymentRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeploymentRoleDefaultPolicyB30A6D11"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.<anonymous> in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:51:20)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/InfraStack/WebSocketConnectLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebSocketConnectLambdaServiceRole52FE30F5"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:89:29)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/WebSocketConnectLambda/ServiceRole/DefaultPolicy": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/WebSocketConnectLambda/Code/AssetBucket": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/WebSocketConnectLambda/LogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebSocketConnectLambdaLogGroup81097F8F"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:89:29)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/WebSocketDisconnectLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebSocketDisconnectLambdaServiceRole1FA6EAD1"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:97:32)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/WebSocketDisconnectLambda/Code/AssetBucket": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/WebSocketDisconnectLambda/LogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebSocketDisconnectLambdaLogGroupCE8F46D6"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:97:32)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/WebSocketDefaultLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebSocketDefaultLambdaServiceRoleC9A91AC5"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:105:29)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/WebSocketDefaultLambda/ServiceRole/DefaultPolicy": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/WebSocketDefaultLambda/Code/AssetBucket": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/WebSocketDefaultLambda/LogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebSocketDefaultLambdaLogGroup95FCFF44"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:105:29)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$connect-Route/ConnectIntegration-Permission": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineWebSocketApiconnectRouteConnectIntegrationPermission7669D0F5"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new WebSocketApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:116:26)"
+      ]
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$connect-Route/ConnectIntegration": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$connect-Route/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineWebSocketApiconnectRoute870887A1"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new WebSocketApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:116:26)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$disconnect-Route/DisconnectIntegration-Permission": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineWebSocketApidisconnectRouteDisconnectIntegrationPermission496EDA99"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new WebSocketApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:116:26)"
+      ]
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$disconnect-Route/DisconnectIntegration": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$disconnect-Route/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineWebSocketApidisconnectRoute62EEBCC3"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new WebSocketApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:116:26)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$default-Route/DefaultIntegration-Permission": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineWebSocketApidefaultRouteDefaultIntegrationPermission1C55204D"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new WebSocketApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:116:26)"
+      ]
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$default-Route/DefaultIntegration": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$default-Route/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineWebSocketApidefaultRouteF9EDB9CC"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new WebSocketApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:116:26)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/GenerateLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GenerateLambdaServiceRoleDC98905B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:147:28)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/GenerateLambda/ServiceRole/DefaultPolicy": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/GenerateLambda/Code/AssetBucket": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/GenerateLambda/LogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GenerateLambdaLogGroupFBBD2D63"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:147:28)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/GenerateLambda/FunctionUrl/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GenerateLambdaFunctionUrl0FD824AC"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...NodejsFunction.addFunctionUrl in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:304:34)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/OrchestrationLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OrchestrationLambdaServiceRole711687AB"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:162:33)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/OrchestrationLambda/ServiceRole/DefaultPolicy": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/OrchestrationLambda/Code/AssetBucket": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/OrchestrationLambda/LogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OrchestrationLambdaLogGroup8A8428C6"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:162:33)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/OrchestrationLambda/FunctionUrl/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OrchestrationLambdaFunctionUrl1FB307CD"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...NodejsFunction.addFunctionUrl in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:313:52)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DeployLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeployLambdaServiceRoleE157DB9F"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:183:26)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DeployLambda/ServiceRole/DefaultPolicy": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/DeployLambda/Code/AssetBucket": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/DeployLambda/LogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeployLambdaLogGroup0064E22E"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:183:26)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/ApprovalLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ApprovalLambdaServiceRole4D932194"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:207:28)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/ApprovalLambda/ServiceRole/DefaultPolicy": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/ApprovalLambda/Code/AssetBucket": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/ApprovalLambda/LogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ApprovalLambdaLogGroupBD8C3326"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:207:28)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/HistoryLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "HistoryLambdaServiceRole6CA0090A"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:226:27)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/HistoryLambda/ServiceRole/DefaultPolicy": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/InfraStack/HistoryLambda/Code/AssetBucket": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/InfraStack/HistoryLambda/LogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "HistoryLambdaLogGroup6E314982"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new NodejsFunction in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:226:27)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Deployment/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiDeploymentCFE1FA131fe37c6a410d0905c50726b574fa3f5d"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new RestApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:322:17)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/DeploymentStage.prod/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiDeploymentStageprodB5906A9D"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new RestApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:322:17)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/OPTIONS": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "resource": "*",
+        "httpMethod": "*",
+        "integration": "*",
+        "options": {
+          "authorizer": {
+            "authorizerId": "*",
+            "authorizationType": "*"
+          },
+          "apiKeyRequired": false,
+          "authorizationType": "*",
+          "methodResponses": [
+            {
+              "statusCode": "*",
+              "responseParameters": "*"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addMethodResponse": [
+          {
+            "statusCode": "*",
+            "responseParameters": "*"
+          }
+        ]
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/generate": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "parent": "*",
+        "pathPart": "*"
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/orchestrate": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "parent": "*",
+        "pathPart": "*"
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/approve": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "parent": "*",
+        "pathPart": "*"
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/history": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "parent": "*",
+        "pathPart": "*"
+      }
+    }
+  ],
+  "/InfraStack/WebSocketConnectLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebSocketConnectLambdaServiceRoleDefaultPolicyE26C6A4C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...NodejsFunction.addToRolePolicy in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:144:21)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/WebSocketDefaultLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebSocketDefaultLambdaServiceRoleDefaultPolicy1378B28F"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...NodejsFunction.addToRolePolicy in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:145:21)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$connect-Route/ConnectIntegration/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineWebSocketApiconnectRouteConnectIntegration762AE671"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new WebSocketApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:116:26)"
+      ]
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$disconnect-Route/DisconnectIntegration/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineWebSocketApidisconnectRouteDisconnectIntegration0BA996D2"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new WebSocketApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:116:26)"
+      ]
+    }
+  ],
+  "/InfraStack/PipelineWebSocketApi/$default-Route/DefaultIntegration/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PipelineWebSocketApidefaultRouteDefaultIntegration88084307"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new WebSocketApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:116:26)"
+      ]
+    }
+  ],
+  "/InfraStack/GenerateLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GenerateLambdaServiceRoleDefaultPolicyD853F5EF"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.grantInvoke in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:237:21)"
+      ]
+    }
+  ],
+  "/InfraStack/OrchestrationLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OrchestrationLambdaServiceRoleDefaultPolicy2C7636F7"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.grantInvoke in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:238:21)"
+      ]
+    }
+  ],
+  "/InfraStack/DeployLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeployLambdaServiceRoleDefaultPolicy54F7491A"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/InfraStack/ApprovalLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ApprovalLambdaServiceRoleDefaultPolicy80FFA3D4"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/InfraStack/HistoryLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "HistoryLambdaServiceRoleDefaultPolicyFFF32D3B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiOPTIONSEB4F2CE1"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new RestApi2 in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:322:17)"
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/generate/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApigenerate2A01D4E4"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...RootResource.addResource in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:330:31)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/generate/OPTIONS": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "resource": "*",
+        "httpMethod": "*",
+        "integration": "*",
+        "options": {
+          "authorizer": {
+            "authorizerId": "*",
+            "authorizationType": "*"
+          },
+          "apiKeyRequired": false,
+          "authorizationType": "*",
+          "methodResponses": [
+            {
+              "statusCode": "*",
+              "responseParameters": "*"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addMethodResponse": [
+          {
+            "statusCode": "*",
+            "responseParameters": "*"
+          }
+        ]
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/generate/POST": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "resource": "*",
+        "httpMethod": "*",
+        "integration": "*",
+        "options": "*"
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/orchestrate/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiorchestrate2E11019B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...RootResource.addResource in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:333:34)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/orchestrate/OPTIONS": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "resource": "*",
+        "httpMethod": "*",
+        "integration": "*",
+        "options": {
+          "authorizer": {
+            "authorizerId": "*",
+            "authorizationType": "*"
+          },
+          "apiKeyRequired": false,
+          "authorizationType": "*",
+          "methodResponses": [
+            {
+              "statusCode": "*",
+              "responseParameters": "*"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addMethodResponse": [
+          {
+            "statusCode": "*",
+            "responseParameters": "*"
+          }
+        ]
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/orchestrate/POST": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "resource": "*",
+        "httpMethod": "*",
+        "integration": "*",
+        "options": "*"
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/approve/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiapprove1D581B0E"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...RootResource.addResource in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:338:30)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/approve/OPTIONS": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "resource": "*",
+        "httpMethod": "*",
+        "integration": "*",
+        "options": {
+          "authorizer": {
+            "authorizerId": "*",
+            "authorizationType": "*"
+          },
+          "apiKeyRequired": false,
+          "authorizationType": "*",
+          "methodResponses": [
+            {
+              "statusCode": "*",
+              "responseParameters": "*"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addMethodResponse": [
+          {
+            "statusCode": "*",
+            "responseParameters": "*"
+          }
+        ]
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/approve/POST": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "resource": "*",
+        "httpMethod": "*",
+        "integration": "*",
+        "options": "*"
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/history/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApihistory2ED6A31F"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...RootResource.addResource in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:341:30)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/history/OPTIONS": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "resource": "*",
+        "httpMethod": "*",
+        "integration": "*",
+        "options": {
+          "authorizer": {
+            "authorizerId": "*",
+            "authorizationType": "*"
+          },
+          "apiKeyRequired": false,
+          "authorizationType": "*",
+          "methodResponses": [
+            {
+              "statusCode": "*",
+              "responseParameters": "*"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addMethodResponse": [
+          {
+            "statusCode": "*",
+            "responseParameters": "*"
+          }
+        ]
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/history/GET": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "resource": "*",
+        "httpMethod": "*",
+        "integration": "*",
+        "options": "*"
+      }
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/generate/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApigenerateOPTIONSBAD277C8"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...RootResource.addResource in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:330:31)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)"
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/generate/POST/ApiPermission.InfraStackDevopsCopilotApi058E55BB.POST..generate": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApigeneratePOSTApiPermissionInfraStackDevopsCopilotApi058E55BBPOSTgenerate6996478B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:331:14)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/generate/POST/ApiPermission.Test.InfraStackDevopsCopilotApi058E55BB.POST..generate": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApigeneratePOSTApiPermissionTestInfraStackDevopsCopilotApi058E55BBPOSTgenerate5CFE1B41"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:331:14)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/generate/POST/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApigeneratePOSTBB804D34"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:331:14)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/orchestrate/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiorchestrateOPTIONSB11F0991"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...RootResource.addResource in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:333:34)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)"
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/orchestrate/POST/ApiPermission.InfraStackDevopsCopilotApi058E55BB.POST..orchestrate": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiorchestratePOSTApiPermissionInfraStackDevopsCopilotApi058E55BBPOSTorchestrateFA681E65"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:334:17)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/orchestrate/POST/ApiPermission.Test.InfraStackDevopsCopilotApi058E55BB.POST..orchestrate": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiorchestratePOSTApiPermissionTestInfraStackDevopsCopilotApi058E55BBPOSTorchestrate28C41A0E"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:334:17)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/orchestrate/POST/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiorchestratePOST9157F78F"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:334:17)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/approve/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiapproveOPTIONSC9DA5B8C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...RootResource.addResource in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:338:30)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)"
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/approve/POST/ApiPermission.InfraStackDevopsCopilotApi058E55BB.POST..approve": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiapprovePOSTApiPermissionInfraStackDevopsCopilotApi058E55BBPOSTapprove9E92B6BB"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:339:13)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/approve/POST/ApiPermission.Test.InfraStackDevopsCopilotApi058E55BB.POST..approve": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiapprovePOSTApiPermissionTestInfraStackDevopsCopilotApi058E55BBPOSTapprove5F7BD1F3"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:339:13)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/approve/POST/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApiapprovePOST78A5033D"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:339:13)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/history/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApihistoryOPTIONS29C440C5"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...RootResource.addResource in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:341:30)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)"
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/history/GET/ApiPermission.InfraStackDevopsCopilotApi058E55BB.GET..history": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApihistoryGETApiPermissionInfraStackDevopsCopilotApi058E55BBGEThistory93708627"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:342:13)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/history/GET/ApiPermission.Test.InfraStackDevopsCopilotApi058E55BB.GET..history": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApihistoryGETApiPermissionTestInfraStackDevopsCopilotApi058E55BBGEThistory7B3A627C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:342:13)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/InfraStack/DevopsCopilotApi/Default/history/GET/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DevopsCopilotApihistoryGET3ABED6A7"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new InfraStack (/Users/mallappabadiger/apex/infra/lib/infra-stack.ts:342:13)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:14:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ]
+}

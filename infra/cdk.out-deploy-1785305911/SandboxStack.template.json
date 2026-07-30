@@ -1,0 +1,205 @@
+{
+ "Resources": {
+  "SandboxLayerE570F73A": {
+   "Type": "AWS::Lambda::LayerVersion",
+   "Properties": {
+    "CompatibleRuntimes": [
+     "nodejs20.x"
+    ],
+    "Content": {
+     "S3Bucket": "cdk-hnb659fds-assets-437040615496-ap-south-1",
+     "S3Key": "3a953054b6ae087470536b28f8ab3e040188832459cc5f7c7ee070554470dbf7.zip"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SandboxStack/SandboxLayer/Resource",
+    "aws:asset:path": "asset.3a953054b6ae087470536b28f8ab3e040188832459cc5f7c7ee070554470dbf7",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Content"
+   }
+  },
+  "SandboxRoleB7EBBDF8": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "SandboxStack/SandboxRole/Resource"
+   }
+  },
+  "SandboxRoleDefaultPolicy41E6D6A2": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::GetAtt": [
+            "SandboxLogGroup2E79BA76",
+            "Arn"
+           ]
+          },
+          ":*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "SandboxRoleDefaultPolicy41E6D6A2",
+    "Roles": [
+     {
+      "Ref": "SandboxRoleB7EBBDF8"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "SandboxStack/SandboxRole/DefaultPolicy/Resource"
+   }
+  },
+  "SandboxLogGroup2E79BA76": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "RetentionInDays": 7
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "SandboxStack/SandboxLogGroup/Resource"
+   }
+  },
+  "SandboxLambda2B36767D": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-437040615496-ap-south-1",
+     "S3Key": "1414a3eb1443e700ca0a3a00f37828b9533c8282a4b9a9cd98b06fff238df2a2.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "CDK_DISABLE_VERSION_CHECK": "1",
+      "NODE_ENV": "production"
+     }
+    },
+    "EphemeralStorage": {
+     "Size": 1024
+    },
+    "Handler": "index.handler",
+    "Layers": [
+     {
+      "Ref": "SandboxLayerE570F73A"
+     }
+    ],
+    "LoggingConfig": {
+     "LogGroup": {
+      "Ref": "SandboxLogGroup2E79BA76"
+     }
+    },
+    "MemorySize": 1024,
+    "Role": {
+     "Fn::GetAtt": [
+      "SandboxRoleB7EBBDF8",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 60
+   },
+   "DependsOn": [
+    "SandboxRoleDefaultPolicy41E6D6A2",
+    "SandboxRoleB7EBBDF8"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "SandboxStack/SandboxLambda/Resource",
+    "aws:asset:path": "asset.1414a3eb1443e700ca0a3a00f37828b9533c8282a4b9a9cd98b06fff238df2a2",
+    "aws:asset:is-bundled": true,
+    "aws:asset:property": "Code"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/41SwYrbMBD9ltUxKGqTbWnJLSltKeRQ4qUXE5aJNHW0kTRGkrO4wv9ebMvesEuhJzHz5j3Nm5m1WH/8LN7fwXNYSnVZGn0SqYggLxyew2MyYE8KRNpDi/4X+qDJlYlJUsg2bME4k2RriPpk8NC4qC2GAeiO/Mtvd0vj3xon48j3Y2mWOINTBv0sOGubnh7YpmQLduTMk5kRqr57auoc9mLUxBxZtOTbQv+ZqrE+o0UPpojkocJbyF21J2fRjeyOJwZKfb1Nl0Plgh3/B9zf9jxOYTLe8XD/CCFgDGLbPzzci10jLxh3EHBW4hqsSAcyWCYGITQW1a5lm8Rqr53UNZitlNS4yfBY0xO2w0ejk9zQA/0ko2XLNmXqji/JSeoNGiPI8w9ntMMZmw3+Exyc9i3wMT+4mQgPdBh290rnbVqpIkLEfrQhtzQIj5odN1QFkfZ5+/0lYUQ3ev7EmUdL1xdLTGGIntrpGjOt6/gw/iJCpV3VcUcKxVN4d11/EKuVWN09Ba2X+UhFvuu/RRg0GCsDAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "SandboxStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "ExportsOutputFnGetAttSandboxLambda2B36767DArn7E5484AA": {
+   "Value": {
+    "Fn::GetAtt": [
+     "SandboxLambda2B36767D",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "SandboxStack:ExportsOutputFnGetAttSandboxLambda2B36767DArn7E5484AA"
+   }
+  },
+  "ExportsOutputRefSandboxLambda2B36767D7D6E73DC": {
+   "Value": {
+    "Ref": "SandboxLambda2B36767D"
+   },
+   "Export": {
+    "Name": "SandboxStack:ExportsOutputRefSandboxLambda2B36767D7D6E73DC"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

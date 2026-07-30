@@ -1,0 +1,299 @@
+{
+  "/SandboxStack": [
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:13:22)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/SandboxStack/SandboxLayer": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "code": "*",
+        "compatibleRuntimes": "*"
+      }
+    }
+  ],
+  "/SandboxStack/SandboxRole": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "assumedBy": {
+          "principalAccount": "*",
+          "assumeRoleAction": "*"
+        }
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addToPrincipalPolicy": [
+          {}
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachInlinePolicy": [
+          "*"
+        ]
+      }
+    }
+  ],
+  "/SandboxStack/SandboxLogGroup": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "retention": 7,
+        "removalPolicy": "destroy"
+      }
+    }
+  ],
+  "/SandboxStack/SandboxLambda": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": {
+        "runtime": "*",
+        "handler": "*",
+        "code": "*",
+        "layers": [
+          "*"
+        ],
+        "role": "*",
+        "logGroup": "*",
+        "timeout": "*",
+        "memorySize": "*",
+        "ephemeralStorageSize": "*",
+        "environment": "*"
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addEnvironment": [
+          "*",
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addEnvironment": [
+          "*",
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addLayers": [
+          "*"
+        ]
+      }
+    }
+  ],
+  "/SandboxStack/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/SandboxStack/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/SandboxStack/SandboxLayer/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SandboxLayerE570F73A"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new LayerVersion2 in aws-cdk-lib...",
+        "new SandboxStack (/Users/mallappabadiger/apex/infra/lib/sandbox-stack.ts:29:26)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:13:22)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/SandboxStack/SandboxRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SandboxRoleB7EBBDF8"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Role2 in aws-cdk-lib...",
+        "new SandboxStack (/Users/mallappabadiger/apex/infra/lib/sandbox-stack.ts:34:25)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:13:22)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/SandboxStack/SandboxRole/DefaultPolicy": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "attachToRole": [
+          "*"
+        ]
+      }
+    },
+    {
+      "type": "aws:cdk:analytics:method",
+      "data": {
+        "addStatements": [
+          {}
+        ]
+      }
+    }
+  ],
+  "/SandboxStack/SandboxLogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SandboxLogGroup2E79BA76"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new LogGroup2 in aws-cdk-lib...",
+        "new SandboxStack (/Users/mallappabadiger/apex/infra/lib/sandbox-stack.ts:38:29)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:13:22)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/SandboxStack/SandboxLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SandboxLambda2B36767D"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Function2 in aws-cdk-lib...",
+        "new SandboxStack (/Users/mallappabadiger/apex/infra/lib/sandbox-stack.ts:52:22)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:13:22)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/SandboxStack/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib, node internals...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/SandboxStack/Exports/Output{\"Fn::GetAtt\":[\"SandboxLambda2B36767D\",\"Arn\"]}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputFnGetAttSandboxLambda2B36767DArn7E5484AA"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib, node internals...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/SandboxStack/Exports/Output{\"Ref\":\"SandboxLambda2B36767D\"}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ExportsOutputRefSandboxLambda2B36767D7D6E73DC"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib, node internals...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/SandboxStack/SandboxLayer/Code/AssetBucket": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ],
+  "/SandboxStack/SandboxRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SandboxRoleDefaultPolicy41E6D6A2"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.<anonymous> in aws-cdk-lib...",
+        "new SandboxStack (/Users/mallappabadiger/apex/infra/lib/sandbox-stack.ts:43:17)",
+        "<anonymous> (/Users/mallappabadiger/apex/infra/bin/infra.ts:13:22)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/SandboxStack/SandboxLambda/Code/AssetBucket": [
+    {
+      "type": "aws:cdk:analytics:construct",
+      "data": "*"
+    }
+  ]
+}
