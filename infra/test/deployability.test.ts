@@ -48,6 +48,39 @@ describe('deployability', () => {
     expect(findUnsupportedResourceTypes(template)).toEqual([]);
   });
 
+  test('accepts ECS services with networking, scaling, roles, and logs', () => {
+    const types = [
+      'AWS::ApplicationAutoScaling::ScalableTarget',
+      'AWS::ApplicationAutoScaling::ScalingPolicy',
+      'AWS::EC2::EIP',
+      'AWS::EC2::InternetGateway',
+      'AWS::EC2::NatGateway',
+      'AWS::EC2::Route',
+      'AWS::EC2::RouteTable',
+      'AWS::EC2::SecurityGroup',
+      'AWS::EC2::SecurityGroupEgress',
+      'AWS::EC2::SecurityGroupIngress',
+      'AWS::EC2::Subnet',
+      'AWS::EC2::SubnetRouteTableAssociation',
+      'AWS::EC2::VPC',
+      'AWS::EC2::VPCGatewayAttachment',
+      'AWS::ECS::Cluster',
+      'AWS::ECS::Service',
+      'AWS::ECS::TaskDefinition',
+      'AWS::ElasticLoadBalancingV2::Listener',
+      'AWS::ElasticLoadBalancingV2::LoadBalancer',
+      'AWS::ElasticLoadBalancingV2::TargetGroup',
+      'AWS::IAM::Policy',
+      'AWS::IAM::Role',
+      'AWS::Logs::LogGroup',
+    ];
+    const Resources = Object.fromEntries(
+      types.map((Type, index) => [`Resource${index}`, { Type }]),
+    );
+
+    expect(findUnsupportedResourceTypes({ Resources })).toEqual([]);
+  });
+
   test('buildDeployabilityErrorMessage lists supported types', () => {
     const message = buildDeployabilityErrorMessage(['AWS::Lambda::Function']);
 

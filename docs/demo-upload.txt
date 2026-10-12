@@ -1,0 +1,4 @@
+Hello from the Apex classroom demo.
+
+This file is stored in an S3 bucket generated from an English request,
+synthesized with AWS CDK, and deployed through CloudFormation after approval.

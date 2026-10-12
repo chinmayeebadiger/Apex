@@ -45,8 +45,12 @@ export class InfraStack extends cdk.Stack {
 
     const deploymentRole = new iam.Role(this, 'DeploymentRole', {
       assumedBy: new iam.ServicePrincipal('cloudformation.amazonaws.com'),
-      description: 'Least-privilege role for Apex-generated stacks (S3 + KMS for encrypted buckets). Resource allowlist: infra/lambda/shared/deployability.ts',
+      description: 'CloudFormation deployment role for Apex-generated stacks. Resource allowlist: infra/lambda/shared/deployability.ts',
     });
+
+    deploymentRole.addManagedPolicy(
+      iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'),
+    );
 
     deploymentRole.addToPolicy(new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,

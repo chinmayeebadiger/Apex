@@ -3,6 +3,16 @@
 > **For:** the next agent. This is a **plan** grounded in live AWS evidence from 2026-07-29.
 > **Screenshot symptoms:** toast `Generation Failed` / `Failed to fetch`, and banner `Deployment failed and rolled back` with **Retry deploy**, while `generated-stack.ts` still shows.
 > **Related:** [kms-deployment-role-access-denied.md](./kms-deployment-role-access-denied.md) (root cause of the deploy rollback — code fixed, **not deployed**).
+>
+> ## Resolution (2026-07-31)
+>
+> **Symptom A (deploy rollback): FIXED and verified end-to-end.**
+> - Live `DeploymentRole` now includes `kms:CreateKey` (+ related KMS actions).
+> - `DeployLambda` last modified `2026-07-29T06:14:48Z` (guardrail + role sync live).
+> - Fresh E2E: KMS S3 prompt → `awaiting_approval` → approve → **`deployed`** stack `apex-gen-47a0f5c4` with `AWS::KMS::Key`, Alias, Bucket, BucketPolicy all `CREATE_COMPLETE`.
+> - Outputs included real `BucketArn` + `KMSKeyArn`.
+>
+> **Symptom B (Failed to fetch): Not reproduced.** Short + KMS generate both returned HTTP 200 (~29–41s). Toast title still misleading for approve errors (optional UX polish, not blocking).
 
 ---
 

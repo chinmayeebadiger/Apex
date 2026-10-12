@@ -33,7 +33,10 @@ const getDeployFunctionName = () => {
 
 const response = (statusCode: number, body: unknown) => ({
   statusCode,
-  headers: { 'Content-Type': 'application/json' },
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+  },
   body: JSON.stringify(body),
 });
 

@@ -69,6 +69,9 @@ describe('approval handler', () => {
     });
 
     expect(result.statusCode).toBe(200);
+    expect(result.headers).toEqual(expect.objectContaining({
+      'Access-Control-Allow-Origin': '*',
+    }));
     expect(JSON.parse(result.body)).toEqual(expect.objectContaining({
       status: 'deploying',
     }));

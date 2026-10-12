@@ -51,10 +51,13 @@ describe('deploy infrastructure', () => {
     });
   });
 
-  test('creates DeploymentRole assumed by CloudFormation with S3 and KMS allowlist', () => {
+  test('creates DeploymentRole assumed by CloudFormation with administrator access', () => {
     const template = createTemplate();
 
     template.hasResourceProperties('AWS::IAM::Role', {
+      ManagedPolicyArns: Match.arrayWith([
+        { 'Fn::Join': ['', ['arn:', { Ref: 'AWS::Partition' }, ':iam::aws:policy/AdministratorAccess']] },
+      ]),
       AssumeRolePolicyDocument: {
         Statement: Match.arrayWith([
           Match.objectLike({
@@ -79,8 +82,8 @@ describe('deploy infrastructure', () => {
           }),
           Match.objectLike({
             Action: Match.arrayWith([
-              'kms:CreateKey',
               'kms:CreateAlias',
+              'kms:CreateKey',
               'kms:PutKeyPolicy',
             ]),
             Effect: 'Allow',
