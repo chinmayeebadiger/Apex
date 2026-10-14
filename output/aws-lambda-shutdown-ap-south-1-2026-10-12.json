@@ -1,0 +1,119 @@
+[
+  {
+    "region": "ap-south-1",
+    "name": "SandboxStack-SandboxLambda2B36767D-PTB2Ts6FP7Xg",
+    "original": null,
+    "provisioned": {
+      "ProvisionedConcurrencyConfigs": []
+    },
+    "disabled": true
+  },
+  {
+    "region": "ap-south-1",
+    "name": "InfraStack-WebSocketConnectLambda7B54F409-4idGQeLJP2sQ",
+    "original": null,
+    "provisioned": {
+      "ProvisionedConcurrencyConfigs": []
+    },
+    "disabled": true
+  },
+  {
+    "region": "ap-south-1",
+    "name": "InfraStack-WebSocketDisconnectLambda124CEB46-xAe6ktCj9nP0",
+    "original": null,
+    "provisioned": {
+      "ProvisionedConcurrencyConfigs": []
+    },
+    "disabled": true
+  },
+  {
+    "region": "ap-south-1",
+    "name": "InfraStack-DeployLambda2C7D0F8E-UiHyt48SUHbE",
+    "original": null,
+    "provisioned": {
+      "ProvisionedConcurrencyConfigs": []
+    },
+    "disabled": true
+  },
+  {
+    "region": "ap-south-1",
+    "name": "visitor-counter-function",
+    "original": null,
+    "provisioned": {
+      "ProvisionedConcurrencyConfigs": []
+    },
+    "disabled": true
+  },
+  {
+    "region": "ap-south-1",
+    "name": "InfraStack-HistoryLambda3D0CB663-1tpkS1TUmlZf",
+    "original": null,
+    "provisioned": {
+      "ProvisionedConcurrencyConfigs": []
+    },
+    "disabled": true
+  },
+  {
+    "region": "ap-south-1",
+    "name": "chinmayee-demo",
+    "original": null,
+    "provisioned": {
+      "ProvisionedConcurrencyConfigs": []
+    },
+    "disabled": true
+  },
+  {
+    "region": "ap-south-1",
+    "name": "chinmayee-demo-cloud",
+    "original": null,
+    "provisioned": {
+      "ProvisionedConcurrencyConfigs": []
+    },
+    "disabled": true
+  },
+  {
+    "region": "ap-south-1",
+    "name": "InfraStack-CustomS3AutoDeleteObjectsCustomResource-9jLjSQ93VVQq",
+    "original": null,
+    "provisioned": {
+      "ProvisionedConcurrencyConfigs": []
+    },
+    "disabled": true
+  },
+  {
+    "region": "ap-south-1",
+    "name": "InfraStack-ApprovalLambda98B4F976-rz8cH0EN7YUl",
+    "original": null,
+    "provisioned": {
+      "ProvisionedConcurrencyConfigs": []
+    },
+    "disabled": true
+  },
+  {
+    "region": "ap-south-1",
+    "name": "InfraStack-WebSocketDefaultLambda77CC3F0C-6hzr7YZYE2pN",
+    "original": null,
+    "provisioned": {
+      "ProvisionedConcurrencyConfigs": []
+    },
+    "disabled": true
+  },
+  {
+    "region": "ap-south-1",
+    "name": "InfraStack-GenerateLambda921FA2E9-arGuE36Hul3L",
+    "original": null,
+    "provisioned": {
+      "ProvisionedConcurrencyConfigs": []
+    },
+    "disabled": true
+  },
+  {
+    "region": "ap-south-1",
+    "name": "InfraStack-OrchestrationLambdaA3E58080-U39yI82EmmHZ",
+    "original": null,
+    "provisioned": {
+      "ProvisionedConcurrencyConfigs": []
+    },
+    "disabled": true
+  }
+]

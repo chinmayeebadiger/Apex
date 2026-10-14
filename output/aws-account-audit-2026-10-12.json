@@ -1,0 +1,467 @@
+{
+  "checkedAt": "2026-10-12T16:18:23.847Z",
+  "account": "437040615496",
+  "regions": [
+    "ap-south-1",
+    "eu-north-1",
+    "eu-west-3",
+    "eu-west-2",
+    "eu-west-1",
+    "ap-northeast-3",
+    "ap-northeast-2",
+    "ap-northeast-1",
+    "ca-central-1",
+    "sa-east-1",
+    "ap-southeast-1",
+    "ap-southeast-2",
+    "eu-central-1",
+    "us-east-1",
+    "us-east-2",
+    "us-west-1",
+    "us-west-2"
+  ],
+  "resources": [
+    {
+      "region": "ap-south-1",
+      "service": "lambdaFunctions",
+      "data": [
+        "SandboxStack-SandboxLambda2B36767D-PTB2Ts6FP7Xg",
+        "InfraStack-WebSocketConnectLambda7B54F409-4idGQeLJP2sQ",
+        "InfraStack-WebSocketDisconnectLambda124CEB46-xAe6ktCj9nP0",
+        "InfraStack-DeployLambda2C7D0F8E-UiHyt48SUHbE",
+        "visitor-counter-function",
+        "InfraStack-HistoryLambda3D0CB663-1tpkS1TUmlZf",
+        "chinmayee-demo",
+        "chinmayee-demo-cloud",
+        "InfraStack-CustomS3AutoDeleteObjectsCustomResource-9jLjSQ93VVQq",
+        "InfraStack-ApprovalLambda98B4F976-rz8cH0EN7YUl",
+        "InfraStack-WebSocketDefaultLambda77CC3F0C-6hzr7YZYE2pN",
+        "InfraStack-GenerateLambda921FA2E9-arGuE36Hul3L",
+        "InfraStack-OrchestrationLambdaA3E58080-U39yI82EmmHZ"
+      ]
+    },
+    {
+      "region": "ap-south-1",
+      "service": "ebsVolumes",
+      "data": [
+        {
+          "Id": "vol-0b4a5c24ad20f4be2",
+          "Size": 30,
+          "State": "in-use",
+          "Type": "gp3"
+        }
+      ]
+    },
+    {
+      "region": "ap-south-1",
+      "service": "ec2",
+      "data": [
+        {
+          "Id": "i-0afff807f96ce9503",
+          "State": "stopped",
+          "Type": "t3.small"
+        }
+      ]
+    },
+    {
+      "region": "ap-south-1",
+      "service": "elasticIps",
+      "data": [
+        {
+          "AllocationId": "eipalloc-01331fff3ef7974c5",
+          "AssociationId": "eipassoc-0a4388a88f486145f",
+          "Domain": "vpc",
+          "NetworkInterfaceId": "eni-0e995a70870940768",
+          "NetworkInterfaceOwnerId": "437040615496",
+          "PrivateIpAddress": "10.0.0.134",
+          "Tags": [
+            {
+              "Key": "aws:cloudformation:stack-id",
+              "Value": "arn:aws:cloudformation:ap-south-1:437040615496:stack/StudentOsStack/877e00c0-8d09-11f1-9866-06ea0a689edb"
+            },
+            {
+              "Key": "aws:cloudformation:stack-name",
+              "Value": "StudentOsStack"
+            },
+            {
+              "Key": "aws:cloudformation:logical-id",
+              "Value": "StudentOsEip"
+            }
+          ],
+          "PublicIpv4Pool": "amazon",
+          "NetworkBorderGroup": "ap-south-1",
+          "InstanceId": "i-0afff807f96ce9503",
+          "PublicIp": "15.252.55.39"
+        }
+      ]
+    },
+    {
+      "region": "ap-south-1",
+      "service": "dynamoTables",
+      "data": [
+        "InfraStack-GenerationsTable592AAEF3-8Y2B5EFQ2V9H",
+        "VisitorCounter"
+      ]
+    },
+    {
+      "region": "ap-south-1",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "ap-south-1",
+      "service": "ecrRepos",
+      "data": [
+        "cdk-hnb659fds-container-assets-437040615496-ap-south-1"
+      ]
+    },
+    {
+      "region": "ap-south-1",
+      "service": "secrets",
+      "data": [
+        {
+          "Name": "anthropic-api-key",
+          "Arn": "arn:aws:secretsmanager:ap-south-1:437040615496:secret:anthropic-api-key-8HMbw7"
+        }
+      ]
+    },
+    {
+      "region": "ap-south-1",
+      "service": "cloudFormation",
+      "data": [
+        {
+          "Name": "StudentOsStack",
+          "Status": "UPDATE_COMPLETE"
+        },
+        {
+          "Name": "apex-gen-47a0f5c4",
+          "Status": "CREATE_COMPLETE"
+        },
+        {
+          "Name": "apex-gen-0d24aef4",
+          "Status": "ROLLBACK_COMPLETE"
+        },
+        {
+          "Name": "apex-gen-1fb83c46",
+          "Status": "ROLLBACK_COMPLETE"
+        },
+        {
+          "Name": "SandboxStack",
+          "Status": "UPDATE_COMPLETE"
+        },
+        {
+          "Name": "InfraStack",
+          "Status": "UPDATE_COMPLETE"
+        },
+        {
+          "Name": "CDKToolkit",
+          "Status": "CREATE_COMPLETE"
+        }
+      ]
+    },
+    {
+      "region": "ap-south-1",
+      "service": "logGroups",
+      "data": [
+        {
+          "Name": "/aws/ecs/containerinsights/apex-gen-4890c79e-AppCluster99B78AC1-qOhTAn8D1Txl/performance",
+          "Bytes": 38349
+        },
+        {
+          "Name": "/aws/lambda/InfraStack-ApprovalLambda98B4F976-rz8cH0EN7YUl",
+          "Bytes": 4171
+        },
+        {
+          "Name": "/aws/lambda/InfraStack-CustomS3AutoDeleteObjectsCustomResource-9jLjSQ93VVQq",
+          "Bytes": 1134
+        },
+        {
+          "Name": "/aws/lambda/InfraStack-DeployLambda2C7D0F8E-UiHyt48SUHbE",
+          "Bytes": 3623
+        },
+        {
+          "Name": "/aws/lambda/InfraStack-GenerateLambda921FA2E9-arGuE36Hul3L",
+          "Bytes": 25282
+        },
+        {
+          "Name": "/aws/lambda/InfraStack-HelloLambda3D9C82D6-f0zpEL02wtPx",
+          "Bytes": 450
+        },
+        {
+          "Name": "/aws/lambda/InfraStack-HistoryLambda3D0CB663-1tpkS1TUmlZf",
+          "Bytes": 12966
+        },
+        {
+          "Name": "/aws/lambda/InfraStack-OrchestrationLambdaA3E58080-U39yI82EmmHZ",
+          "Bytes": 11376
+        },
+        {
+          "Name": "/aws/lambda/InfraStack-WebSocketConnectLambda7B54F409-4idGQeLJP2sQ",
+          "Bytes": 11411
+        },
+        {
+          "Name": "/aws/lambda/InfraStack-WebSocketDefaultLambda77CC3F0C-6hzr7YZYE2pN",
+          "Bytes": 8283
+        },
+        {
+          "Name": "/aws/lambda/InfraStack-WebSocketDisconnectLambda124CEB46-xAe6ktCj9nP0",
+          "Bytes": 8313
+        },
+        {
+          "Name": "/aws/lambda/SandboxStack-SandboxLambda2B36767D-PTB2Ts6FP7Xg",
+          "Bytes": 0
+        },
+        {
+          "Name": "/aws/lambda/chinmayee-demo",
+          "Bytes": 3437
+        },
+        {
+          "Name": "/aws/lambda/chinmayee-demo-cloud",
+          "Bytes": 1208
+        },
+        {
+          "Name": "/aws/lambda/visitor-counter-function",
+          "Bytes": 10043
+        },
+        {
+          "Name": "SandboxStack-SandboxLogGroup2E79BA76-bVaEIO5PIuCG",
+          "Bytes": 558
+        }
+      ]
+    },
+    {
+      "region": "ap-south-1",
+      "service": "kmsKeys",
+      "data": [
+        "164f1553-b9a9-49e8-aa42-50b78c78604c",
+        "301203f0-53aa-4144-9bcc-4160190b2b4e",
+        "697690fc-67c6-444c-bc70-7310a7e5c08c",
+        "8b5693bc-54f2-4081-8d22-5d58e90b17cd",
+        "a48bfdfd-64f6-4058-8ab7-80e423528f7e"
+      ]
+    },
+    {
+      "region": "eu-north-1",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "eu-west-3",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "eu-west-2",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "eu-west-1",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "ap-northeast-3",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "ap-northeast-2",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "ap-northeast-1",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "ca-central-1",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "sa-east-1",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "ap-southeast-1",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "ap-southeast-2",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "eu-central-1",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "us-east-1",
+      "service": "ebsVolumes",
+      "data": [
+        {
+          "Id": "vol-01eb534011e26f294",
+          "Size": 8,
+          "State": "in-use",
+          "Type": "gp3"
+        }
+      ]
+    },
+    {
+      "region": "us-east-1",
+      "service": "ec2",
+      "data": [
+        {
+          "Id": "i-0dd3861f444310d89",
+          "State": "stopped",
+          "Type": "c8a.8xlarge"
+        }
+      ]
+    },
+    {
+      "region": "us-east-1",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "us-east-2",
+      "service": "ec2",
+      "data": [
+        {
+          "Id": "i-05772aca90e5edf5f",
+          "State": "stopped",
+          "Type": "c8a.8xlarge"
+        }
+      ]
+    },
+    {
+      "region": "us-east-2",
+      "service": "ebsVolumes",
+      "data": [
+        {
+          "Id": "vol-0ffbc4bc1321081a7",
+          "Size": 8,
+          "State": "in-use",
+          "Type": "gp3"
+        }
+      ]
+    },
+    {
+      "region": "us-east-2",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "us-west-1",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    },
+    {
+      "region": "global",
+      "service": "s3Buckets",
+      "data": [
+        "apex-gen-47a0f5c4-privateversionedbucketdbaf6089-qjuadayiq6ta",
+        "cdk-hnb659fds-assets-437040615496-ap-south-1",
+        "chinmayee-demo",
+        "chinmayee-demo-cloud",
+        "infrastack-templatesbucketb07ced20-zfvs10i2tnzl"
+      ]
+    },
+    {
+      "region": "us-west-2",
+      "service": "schedulerGroups",
+      "data": [
+        "default"
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "region": "eu-north-1",
+      "service": "appRunner",
+      "message": "aws: [ERROR]: Could not connect to the endpoint URL: \"https://apprunner.eu-north-1.amazonaws.com/\""
+    },
+    {
+      "region": "ap-northeast-3",
+      "service": "appRunner",
+      "message": "aws: [ERROR]: Could not connect to the endpoint URL: \"https://apprunner.ap-northeast-3.amazonaws.com/\""
+    },
+    {
+      "region": "ap-northeast-3",
+      "service": "lightsailInstances",
+      "message": "aws: [ERROR]: Could not connect to the endpoint URL: \"https://lightsail.ap-northeast-3.amazonaws.com/\""
+    },
+    {
+      "region": "ap-northeast-3",
+      "service": "lightsailContainers",
+      "message": "aws: [ERROR]: Could not connect to the endpoint URL: \"https://lightsail.ap-northeast-3.amazonaws.com/\""
+    },
+    {
+      "region": "ap-northeast-2",
+      "service": "appRunner",
+      "message": "aws: [ERROR]: Could not connect to the endpoint URL: \"https://apprunner.ap-northeast-2.amazonaws.com/\""
+    },
+    {
+      "region": "ca-central-1",
+      "service": "appRunner",
+      "message": "aws: [ERROR]: Could not connect to the endpoint URL: \"https://apprunner.ca-central-1.amazonaws.com/\""
+    },
+    {
+      "region": "sa-east-1",
+      "service": "appRunner",
+      "message": "aws: [ERROR]: Could not connect to the endpoint URL: \"https://apprunner.sa-east-1.amazonaws.com/\""
+    },
+    {
+      "region": "us-west-1",
+      "service": "lightsailInstances",
+      "message": "aws: [ERROR]: Could not connect to the endpoint URL: \"https://lightsail.us-west-1.amazonaws.com/\""
+    },
+    {
+      "region": "us-west-1",
+      "service": "lightsailContainers",
+      "message": "aws: [ERROR]: Could not connect to the endpoint URL: \"https://lightsail.us-west-1.amazonaws.com/\""
+    },
+    {
+      "region": "us-west-1",
+      "service": "appRunner",
+      "message": "aws: [ERROR]: Could not connect to the endpoint URL: \"https://apprunner.us-west-1.amazonaws.com/\""
+    }
+  ]
+}

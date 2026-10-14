@@ -1,0 +1,134 @@
+[
+  {
+    "type": "REST",
+    "api": {
+      "id": "8596tnvff0",
+      "name": "DevOps Copilot API",
+      "createdDate": "2026-06-13T16:17:16+05:30",
+      "apiKeySource": "HEADER",
+      "endpointConfiguration": {
+        "types": [
+          "EDGE"
+        ],
+        "ipAddressType": "ipv4"
+      },
+      "tags": {
+        "aws:cloudformation:logical-id": "DevopsCopilotApi076B167C",
+        "aws:cloudformation:stack-id": "arn:aws:cloudformation:ap-south-1:437040615496:stack/InfraStack/39055160-6715-11f1-8150-02052339d98f",
+        "aws:cloudformation:stack-name": "InfraStack"
+      },
+      "disableExecuteApiEndpoint": false,
+      "rootResourceId": "zsienuf6bd",
+      "securityPolicy": "TLS_1_0",
+      "apiStatus": "AVAILABLE"
+    },
+    "stages": {
+      "item": [
+        {
+          "deploymentId": "weva5y",
+          "stageName": "prod",
+          "cacheClusterEnabled": false,
+          "cacheClusterStatus": "NOT_AVAILABLE",
+          "methodSettings": {},
+          "tracingEnabled": false,
+          "tags": {
+            "aws:cloudformation:logical-id": "DevopsCopilotApiDeploymentStageprodB5906A9D",
+            "aws:cloudformation:stack-id": "arn:aws:cloudformation:ap-south-1:437040615496:stack/InfraStack/39055160-6715-11f1-8150-02052339d98f",
+            "aws:cloudformation:stack-name": "InfraStack"
+          },
+          "createdDate": "2026-06-13T16:17:45+05:30",
+          "lastUpdatedDate": "2026-07-20T22:18:47+05:30"
+        }
+      ]
+    },
+    "disabled": true
+  },
+  {
+    "type": "HTTP",
+    "api": {
+      "ApiEndpoint": "https://5h82jq8y4k.execute-api.ap-south-1.amazonaws.com",
+      "ApiId": "5h82jq8y4k",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowMethods": [
+          "GET"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2026-08-07T10:05:12+00:00",
+      "DisableExecuteApiEndpoint": false,
+      "IpAddressType": "ipv4",
+      "Name": "VisitorCounterAPI",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    "stages": {
+      "Items": [
+        {
+          "AutoDeploy": true,
+          "CreatedDate": "2026-08-07T10:05:13+00:00",
+          "DefaultRouteSettings": {
+            "DetailedMetricsEnabled": false
+          },
+          "DeploymentId": "q0368p",
+          "LastDeploymentStatusMessage": "Successfully deployed stage with deployment ID 'q0368p'",
+          "LastUpdatedDate": "2026-08-07T10:18:29+00:00",
+          "RouteSettings": {},
+          "StageName": "$default",
+          "StageVariables": {},
+          "Tags": {}
+        }
+      ]
+    },
+    "disabled": true
+  },
+  {
+    "type": "WEBSOCKET",
+    "api": {
+      "ApiEndpoint": "wss://gtfpskqrce.execute-api.ap-south-1.amazonaws.com",
+      "ApiId": "gtfpskqrce",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CreatedDate": "2026-07-20T16:47:30+00:00",
+      "DisableExecuteApiEndpoint": false,
+      "IpAddressType": "ipv4",
+      "Name": "PipelineWebSocketApi",
+      "ProtocolType": "WEBSOCKET",
+      "RouteSelectionExpression": "$request.body.action",
+      "Tags": {
+        "aws:cloudformation:stack-id": "arn:aws:cloudformation:ap-south-1:437040615496:stack/InfraStack/39055160-6715-11f1-8150-02052339d98f",
+        "aws:cloudformation:stack-name": "InfraStack",
+        "aws:cloudformation:logical-id": "PipelineWebSocketApiB1A0A9C2"
+      }
+    },
+    "stages": {
+      "Items": [
+        {
+          "AutoDeploy": true,
+          "CreatedDate": "2026-07-20T16:47:32+00:00",
+          "DefaultRouteSettings": {
+            "DataTraceEnabled": false,
+            "DetailedMetricsEnabled": false,
+            "LoggingLevel": "OFF"
+          },
+          "DeploymentId": "78wvwa",
+          "LastDeploymentStatusMessage": "Successfully deployed stage with deployment ID '78wvwa'",
+          "LastUpdatedDate": "2026-07-20T17:05:17+00:00",
+          "RouteSettings": {},
+          "StageName": "prod",
+          "StageVariables": {},
+          "Tags": {
+            "aws:cloudformation:stack-id": "arn:aws:cloudformation:ap-south-1:437040615496:stack/InfraStack/39055160-6715-11f1-8150-02052339d98f",
+            "aws:cloudformation:stack-name": "InfraStack",
+            "aws:cloudformation:logical-id": "PipelineWebSocketStage1F1A5B71"
+          }
+        }
+      ]
+    },
+    "disabled": true
+  }
+]
